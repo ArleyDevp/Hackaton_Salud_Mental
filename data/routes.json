@@ -1,0 +1,960 @@
+{
+  "meta": {
+    "nombre": "Ruta Clara Meta",
+    "region": "Villavicencio, Meta",
+    "descripcion": "Orientación clara y sin juicios para encontrar apoyo en salud mental.",
+    "aviso": "Este espacio acompaña, pero no reemplaza la atención profesional.",
+    "privacidad": "Sin cuentas, sin ubicación, sin guardar nada. No pedimos ni almacenamos tus datos personales."
+  },
+  "crisis": [
+    {
+      "id": "yo-te-escucho",
+      "name": "Yo Te Escucho — Villavicencio",
+      "kind": "Línea local de escucha y orientación",
+      "scope": "Villavicencio",
+      "badge": "local",
+      "hours": "24 horas, 7 días",
+      "phones": [
+        {
+          "label": "Llamada gratuita",
+          "number": "01 8000 931 089",
+          "tel": "tel:018000931089"
+        }
+      ],
+      "whatsapp": {
+        "label": "WhatsApp",
+        "number": "316 390 7010",
+        "url": "https://wa.me/573163907010"
+      },
+      "source": "Alcaldía de Villavicencio · ESE Municipal",
+      "verified": true
+    },
+    {
+      "id": "meta",
+      "name": "Línea Amiga de Salud Mental — Meta",
+      "kind": "Línea departamental de apoyo psicológico",
+      "scope": "Departamento del Meta",
+      "badge": "local",
+      "hours": "24 horas, 7 días",
+      "phones": [
+        {
+          "label": "Desde celular",
+          "number": "#775",
+          "tel": "tel:#775"
+        },
+        {
+          "label": "Línea fija / celular",
+          "number": "312 575 1135",
+          "tel": "tel:3125751135"
+        }
+      ],
+      "whatsapp": null,
+      "source": "Gobernación del Meta · E.S.E. “Solución Salud”",
+      "verified": true
+    },
+    {
+      "id": "violeta",
+      "name": "Línea Violeta — Villavicencio",
+      "kind": "Orientación en crisis por violencia de género",
+      "scope": "Villavicencio",
+      "badge": "local",
+      "hours": "24 horas, 7 días",
+      "phones": [
+        {
+          "label": "Llamada",
+          "number": "316 742 6938",
+          "tel": "tel:3167426938"
+        }
+      ],
+      "whatsapp": {
+        "label": "WhatsApp",
+        "number": "316 742 6938",
+        "url": "https://wa.me/573167426938"
+      },
+      "source": "Secretaría de la Mujer de Villavicencio",
+      "verified": true
+    },
+    {
+      "id": "emergencias",
+      "name": "Emergencias — Peligro inmediato",
+      "kind": "Activa ambulancia o Policía Metropolitana",
+      "scope": "Nacional",
+      "badge": "urgent",
+      "hours": "24 horas, 7 días",
+      "phones": [
+        {
+          "label": "Línea nacional",
+          "number": "123",
+          "tel": "tel:123"
+        }
+      ],
+      "whatsapp": null,
+      "source": "Línea nacional de emergencias",
+      "verified": true
+    }
+  ],
+  "lines": [
+    {
+      "id": "yo-te-escucho",
+      "name": "Yo Te Escucho — Villavicencio",
+      "eyebrow": "Llamada y WhatsApp · 24/7",
+      "description": "Canal local de escucha y orientación para habitantes de Villavicencio.",
+      "scope": "En Villavicencio",
+      "featured": true,
+      "phones": [
+        {
+          "label": "Llamada gratuita",
+          "number": "01 8000 931 089",
+          "tel": "tel:018000931089"
+        }
+      ],
+      "whatsapp": {
+        "label": "WhatsApp",
+        "number": "316 390 7010",
+        "url": "https://wa.me/573163907010"
+      },
+      "source": "Alcaldía de Villavicencio · ESE Municipal",
+      "consulta": "octubre de 2026"
+    },
+    {
+      "id": "meta",
+      "name": "Línea Amiga de Salud Mental — Meta",
+      "eyebrow": "Departamental · 24/7",
+      "description": "Canal de apoyo psicológico de la Gobernación del Meta, con operador en Villavicencio.",
+      "scope": "En Villavicencio",
+      "featured": false,
+      "phones": [
+        {
+          "label": "Desde celular",
+          "number": "#775",
+          "tel": "tel:#775"
+        },
+        {
+          "label": "Línea fija / celular",
+          "number": "312 575 1135",
+          "tel": "tel:3125751135"
+        }
+      ],
+      "whatsapp": null,
+      "source": "Gobernación del Meta · E.S.E. “Solución Salud”",
+      "consulta": "octubre de 2026"
+    },
+    {
+      "id": "violeta",
+      "name": "Línea Violeta — Villavicencio",
+      "eyebrow": "Violencia de género · 24/7",
+      "description": "Orientación psicológica y jurídica en crisis por violencia de género.",
+      "scope": "En Villavicencio",
+      "featured": false,
+      "phones": [
+        {
+          "label": "Llamada",
+          "number": "316 742 6938",
+          "tel": "tel:3167426938"
+        }
+      ],
+      "whatsapp": {
+        "label": "WhatsApp",
+        "number": "316 742 6938",
+        "url": "https://wa.me/573167426938"
+      },
+      "source": "Secretaría de la Mujer de Villavicencio",
+      "consulta": "octubre de 2026"
+    },
+    {
+      "id": "emergencias",
+      "name": "Emergencias — Peligro inmediato",
+      "eyebrow": "Nacional · 24/7",
+      "description": "Para activar ambulancia o Policía Metropolitana de Villavicencio.",
+      "scope": "Nacional",
+      "featured": false,
+      "phones": [
+        {
+          "label": "Línea nacional",
+          "number": "123",
+          "tel": "tel:123"
+        }
+      ],
+      "whatsapp": null,
+      "source": "Línea nacional de emergencias",
+      "consulta": "octubre de 2026"
+    }
+  ],
+  "bookTopics": [
+    {
+      "key": "Todos",
+      "label": "Todos"
+    },
+    {
+      "key": "Estrés",
+      "label": "Para desestresarte"
+    },
+    {
+      "key": "Depresión",
+      "label": "Para los días tristes"
+    },
+    {
+      "key": "Ansiedad",
+      "label": "Para la ansiedad"
+    },
+    {
+      "key": "Hábitos",
+      "label": "Pequeños hábitos"
+    },
+    {
+      "key": "Autoayuda",
+      "label": "Para conocerte mejor"
+    }
+  ],
+  "books": [
+    {
+      "title": "¿Por qué las cebras no tienen úlceras?",
+      "author": "Robert Sapolsky",
+      "topic": "Estrés",
+      "description": "Explica cómo el estrés afecta al cuerpo y a la mente, y por qué aprender a manejarlo importa."
+    },
+    {
+      "title": "Mindfulness en la vida cotidiana",
+      "author": "Jon Kabat-Zinn",
+      "topic": "Estrés",
+      "description": "Prácticas sencillas de atención plena para bajar la tensión del día a día."
+    },
+    {
+      "title": "Sentirse bien",
+      "author": "David D. Burns",
+      "topic": "Depresión",
+      "description": "Un clásico sobre cómo los pensamientos influyen en el ánimo, con ejercicios prácticos."
+    },
+    {
+      "title": "El demonio del mediodía",
+      "author": "Andrew Solomon",
+      "topic": "Depresión",
+      "description": "Un recorrido humano y documentado por la experiencia de la depresión."
+    },
+    {
+      "title": "Cómo dejar de preocuparse y empezar a vivir",
+      "author": "Dale Carnegie",
+      "topic": "Ansiedad",
+      "description": "Estrategias cotidianas para soltar la preocupación constante y enfocarte en el presente."
+    },
+    {
+      "title": "Hábitos atómicos",
+      "author": "James Clear",
+      "topic": "Hábitos",
+      "description": "Cómo construir rutinas pequeñas y sostenibles que se suman con el tiempo."
+    },
+    {
+      "title": "El poder de los hábitos",
+      "author": "Charles Duhigg",
+      "topic": "Hábitos",
+      "description": "Por qué nacen los hábitos y cómo cambiarlos de forma amable y realista."
+    },
+    {
+      "title": "El hombre en busca de sentido",
+      "author": "Viktor Frankl",
+      "topic": "Autoayuda",
+      "description": "Una reflexión sobre encontrar propósito incluso en los momentos más difíciles."
+    },
+    {
+      "title": "Los cuatro acuerdos",
+      "author": "Don Miguel Ruiz",
+      "topic": "Autoayuda",
+      "description": "Cuatro ideas simples para relacionarte contigo y con los demás con más libertad."
+    }
+  ],
+  "centers": [
+    {
+      "id": "secretaria-salud",
+      "name": "Secretaría de Salud de Villavicencio",
+      "address": "Calle 37 # 41-80, Barzal, Villavicencio",
+      "phone": "+57 661 0555 · 662 0157 · 662 0140",
+      "tel": "tel:+576610555",
+      "hours": "Lunes a viernes, 8:00 a.m. a 12:00 m. y 2:00 a 6:00 p.m.",
+      "verified": true,
+      "note": "Conmutador de la Secretaría. Pide orientación en salud mental.",
+      "source": "Gobernación del Meta · Secretaría de Salud",
+      "lat": 4.1358,
+      "lon": -73.6353
+    },
+    {
+      "id": "hospital-departamental",
+      "name": "Hospital Departamental de Villavicencio",
+      "address": "Sector Barzal, Villavicencio",
+      "phone": "Urgencias: confirma con la entidad",
+      "tel": null,
+      "hours": "Urgencias 24 horas",
+      "verified": false,
+      "note": "Para urgencias. Confirma el número directo antes de desplazarte.",
+      "source": "Prototipo — pendiente de confirmar",
+      "lat": 4.142,
+      "lon": -73.6266
+    },
+    {
+      "id": "eape-primaria",
+      "name": "Centro de salud de atención primaria",
+      "address": "Zona centro, Villavicencio",
+      "phone": "Por confirmar",
+      "tel": null,
+      "hours": "Por confirmar",
+      "verified": false,
+      "note": "Ubicación aproximada. Pendiente de confirmar dirección, horario y contacto.",
+      "source": "Prototipo — pendiente de confirmar",
+      "lat": 4.1452,
+      "lon": -73.628
+    }
+  ],
+  "phrases": [
+    "Hoy basta con dar un paso pequeño.",
+    "No tienes que tener todas las respuestas hoy.",
+    "Lo que sientes es real y es pesado.",
+    "Esto puede cambiar, aunque hoy no lo parezca.",
+    "No estás solo/a: hay gente dispuesta a escucharte.",
+    "Un paso a la vez es suficiente por hoy.",
+    "Pedir ayuda también es una forma de cuidarte.",
+    "Este momento también va a pasar."
+  ],
+  "needs": [
+    {
+      "id": "hablar",
+      "title": "Quiero hablar con alguien",
+      "subtitle": "Canales disponibles ahora",
+      "route": "crisis",
+      "message": "Un buen primer paso: puedes llamar o escribir a un canal de escucha disponible ahora."
+    },
+    {
+      "id": "cercana",
+      "title": "Busco atención cercana",
+      "subtitle": "Rutas en Villavicencio",
+      "route": "centros",
+      "message": "En Villavicencio hay centros y líneas a las que puedes acudir. Te mostramos direcciones y horarios."
+    }
+  ],
+  "resources": [
+    {
+      "kicker": "Lectura · 5 min",
+      "title": "Una pausa para volver al presente",
+      "text": "Una guía breve para reconocer lo que sientes sin juzgarte.",
+      "icon": "book"
+    },
+    {
+      "kicker": "Guía práctica",
+      "title": "Cuidarte también cuenta",
+      "text": "Pequeños hábitos para acompañar días de mucha presión.",
+      "icon": "heart"
+    },
+    {
+      "kicker": "Directorio local",
+      "title": "Construye tu red de apoyo",
+      "text": "Ideas sencillas para acercarte a alguien de confianza.",
+      "icon": "users"
+    }
+  ],
+  "closing": {
+    "kicker": "Estamos para orientarte",
+    "title": "Dar el primer paso también es avanzar.",
+    "text": "Si necesitas hablar con alguien ahora, la Línea 106 está disponible las 24 horas.",
+    "buttonLabel": "Llamar gratis al 106",
+    "buttonHref": "tel:106"
+  },
+  "habits": [
+    {
+      "title": "Dormir a horas regulares",
+      "tip": "Acuéstate y levántate a una hora parecida, incluso los fines de semana.",
+      "why": "El sueño regular ayuda al cuerpo a regular las emociones; dormir mal suele aumentar la irritabilidad y la tristeza."
+    },
+    {
+      "title": "Caminar 20 minutos",
+      "tip": "Una caminata suave, de preferencia con luz natural.",
+      "why": "El movimiento libera endorfinas y baja la tensión; la luz del día también ayuda a ordenar el sueño y el ánimo."
+    },
+    {
+      "title": "Hablar con alguien de confianza",
+      "tip": "Un mensaje o una llamada corta cuenta.",
+      "why": "Sentirte acompañado reduce la sensación de soledad, que es uno de los factores que más pesa en el ánimo."
+    },
+    {
+      "title": "Una tarea pequeña al día",
+      "tip": "Elige algo de cinco minutos: ordenar un cajón, regar una planta.",
+      "why": "Completar algo, por pequeño que sea, da sensación de logro y rompe la inercia cuando cuesta empezar."
+    },
+    {
+      "title": "Comer y tomar agua con calma",
+      "tip": "Intenta no saltarte comidas y tener agua cerca.",
+      "why": "El hambre y la deshidratación afectan la energía y la concentración, y eso se siente en el estado de ánimo."
+    },
+    {
+      "title": "Anotar una cosa buena del día",
+      "tip": "Una frase antes de dormir, sin exigirte nada más.",
+      "why": "Fijarte en lo que sí salió bien entrena la atención para no quedarse solo en lo difícil."
+    }
+  ],
+  "changeAir": [
+    {
+      "number": "01",
+      "kicker": "Aire libre",
+      "title": "Caminar sin prisa",
+      "text": "Elige una ruta conocida y presta atención a tres sonidos a tu alrededor."
+    },
+    {
+      "number": "02",
+      "kicker": "Creatividad",
+      "title": "Dibujo libre",
+      "text": "Diez minutos, una hoja y ninguna expectativa. Solo deja que la mano se mueva."
+    },
+    {
+      "number": "03",
+      "kicker": "En comunidad",
+      "title": "Compartir el momento",
+      "text": "Invita a una persona cercana a tomar algo o conversar en un lugar tranquilo."
+    }
+  ],
+  "sources": [
+    {
+      "label": "Ministerio de Salud y Protección Social",
+      "url": "https://www.minsalud.gov.co/salud/publica/salud-mental/Paginas/linea-106.aspx"
+    },
+    {
+      "label": "Directorio Nacional de Líneas de Salud Mental (MinSalud)",
+      "url": "https://minsalud.gov.co/sites/rid/lists/bibliotecadigital/ride/vs/pp/et/directorio-salud-mental-prevencion-suicidio-minsalud.pdf"
+    },
+    {
+      "label": "Alcaldía de Villavicencio — Línea Yo Te Escucho",
+      "url": "https://villavicencio.gov.co/yo-te-escucho-la-linea-de-apoyo-emocional-que-sigue-salvando-vidas-en-villavicencio/"
+    },
+    {
+      "label": "Secretaría de la Mujer de Villavicencio — Línea Violeta",
+      "url": "https://villavicencio.gov.co/la-linea-violeta-de-la-secretaria-de-la-mujer-esta-activa-las-24-horas-del-dia/"
+    },
+    {
+      "label": "Gobernación del Meta — Secretaría de Salud",
+      "url": "https://www.saludmeta.gov.co/directorio-institucional/secretaria-de-salud-de-villavicencio"
+    }
+  ],
+  "regalate": [
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Caminar sin prisa",
+      "descripcion": "Elige una ruta conocida y presta atención a tres sonidos a tu alrededor"
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Observar las nubes",
+      "descripcion": "Busca un espacio verde, acuéstate unos minutos y observa las formas que forman las nubes."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Paseo sin rumbo musical",
+      "descripcion": "Sal a caminar una manzana escuchando una sola canción instrumental en bucle."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Caminata de texturas",
+      "descripcion": "Presta atención a cómo se siente el suelo bajo tus zapatos o el aire en tu rostro."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Caza de colores urbanos",
+      "descripcion": "Camina buscando tres objetos de un color brillante y específico en la calle."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Atardecer consciente",
+      "descripcion": "Dedica diez minutos a mirar el cielo al atardecer sin mirar el teléfono."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Explorar un parque nuevo",
+      "descripcion": "Visita un parque de tu ciudad al que nunca hayas entrado antes."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Respirar aire fresco en el balcón",
+      "descripcion": "Sal al balcón o ventana abierta, cierra los ojos y haz tres respiraciones profundas."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Caminata nocturna breve",
+      "descripcion": "Da una vuelta corta a la manzana sintiendo la brisa de la noche."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Contar árboles diferentes",
+      "descripcion": "Identifica tres especies de árboles distintas en tu cuadra y obsérvalas de cerca."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Paseo matutino con café",
+      "descripcion": "Disfruta de tu bebida favorita al aire libre dando unos pasos tranquilos."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Mirar las estrellas fugaces",
+      "descripcion": "Dedica un rato a mirar el cielo nocturno despejado buscando constelaciones."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Caminar pisando hojas o césped",
+      "descripcion": "Camina descalzo sobre el césped o siente el crujido de las hojas secas."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Ruta de los aromas",
+      "descripcion": "Sal a la calle e intenta identificar dos o tres olores agradables en el aire."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Observar aves locales",
+      "descripcion": "Párate cinco minutos a mirar y escuchar a las palomas o gorriones de la zona."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Fotografía de sombras",
+      "descripcion": "Sal de paseo y toma tres fotos de sombras curiosas proyectadas en el suelo."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Buscar una piedra curiosa",
+      "descripcion": "Encuentra una piedra con una forma o textura interesante durante una caminata."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Estiramientos al sol",
+      "descripcion": "Haz un par de estiramientos suaves en un patio o parque bajo la luz natural."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Caminata guiada por la curiosidad",
+      "descripcion": "Gira siempre a la derecha en cada esquina hasta completar un círculo pequeño."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Disfrutar de la lluvia leve",
+      "descripcion": "Sal un momento con paraguas a sentir el frescor de una lluvia suave."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Sentarse en un banco público",
+      "descripcion": "Siéntate en silencio en una plaza a observar el ritmo cotidiano de la gente."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Búsqueda de formas en las rocas",
+      "descripcion": "Busca figuras caprichosas en paredes de piedra o troncos de árboles."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Caminar a paso de tortuga",
+      "descripcion": "Camina muy lentamente durante un minuto observando cada detalle del suelo."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Saludo al viento",
+      "descripcion": "Párate frente a una corriente de aire fresco y recibe la brisa con calma."
+    },
+    {
+      "categoria": "Aire Libre",
+      "actividad": "Excursión de bolsillo",
+      "descripcion": "Recoge una pequeña hoja caída que te parezca bonita y guárdala de marcapáginas."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Dibujo libre",
+      "descripcion": "Diez minutos, una hoja y ninguna expectativa. Solo deja que la mano se mueva"
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Colofón de palabras",
+      "descripcion": "Escribe una lista de diez palabras que te gusten solo por cómo suenan."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Mini collage improvisado",
+      "descripcion": "Recorta tres imágenes al azar de una revista vieja y pégalas formando algo nuevo."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Doodle geométrico",
+      "descripcion": "Llena los márgenes de una hoja con patrones repetitivos de líneas y círculos."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Escribir un microcuento de tres líneas",
+      "descripcion": "Crea una historia minúscula sobre una taza de café o una ventana."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Crear una playlist temática",
+      "descripcion": "Arma una lista de reproducción con canciones que te den energía alegre."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Inventar una palabra nueva",
+      "descripcion": "Diseña una palabra para describir una sensación cotidiana y define su significado."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Garabatos con la mano izquierda",
+      "descripcion": "Intenta dibujar algo sencillo usando tu mano no dominante solo por diversión."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Poesía de recortes",
+      "descripcion": "Recorta palabras sueltas de un periódico y ordénalas formando un verso libre."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Diseñar un logotipo imaginario",
+      "descripcion": "Dibuja el escudo o emblema de un club secreto inventado por ti."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Modelado rápido",
+      "descripcion": "Usa un poco de plastilina o masa para esculpir una figura abstracta en cinco minutos."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Inventar un personaje",
+      "descripcion": "Imagínate el nombre, la profesión y el pasatiempo de alguien que acabas de ver."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Redecorar un rincón",
+      "descripcion": "Cambia de sitio tres pequeños objetos en tu escritorio o mesa de noche."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Escribir una carta a tu futuro yo",
+      "descripcion": "Redacta un mensaje amable para leer dentro de seis meses."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Hacer música con objetos",
+      "descripcion": "Busca ritmos divertidos golpeando suavemente una mesa con un lápiz."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Diseñar un mapa imaginario",
+      "descripcion": "Dibuja el plano de una isla fantástica con montañas y ríos inventados."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Pintar con café o té",
+      "descripcion": "Usa unas gotas de café diluido para hacer un sombreado rústico en un papel."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Inventar un plato nuevo",
+      "descripcion": "Combina dos ingredientes que tengas en la nevera para crear una merienda curiosa."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Crear un origami sencillo",
+      "descripcion": "Haz un avión de papel o una figura básica de papiroflexia."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Escribir un elogio absurdo",
+      "descripcion": "Escribe un cumplido exagerado y cómico a un objeto inanimado de tu casa."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Cantar una canción inventada",
+      "descripcion": "Tararea una melodía improvisada mientras haces alguna tarea del hogar."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Diseñar una portada de libro",
+      "descripcion": "Imagina tu libro favorito con una portada completamente distinta y dibújala."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Crear un patrón de colores",
+      "descripcion": "Pinta cuadritos alternados con marcadores formando una cenefa abstracta."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Inventar un refrán moderno",
+      "descripcion": "Crea un refrán gracioso sobre la tecnología o la vida actual."
+    },
+    {
+      "categoria": "Creatividad",
+      "actividad": "Collage digital de texturas",
+      "descripcion": "Toma fotos con tu móvil de tres texturas interesantes de tu casa."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Compartir el momento",
+      "descripcion": "Invita a una persona cercana a tomar algo o conversar en un lugar tranquilo"
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Mensaje sorpresa de gratitud",
+      "descripcion": "Envía un mensaje de texto inesperado a alguien agradeciéndole un detalle del pasado."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Llamada rápida sin motivo",
+      "descripcion": "Llama a un familiar o amigo solo para saludar durante dos minutos."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Recomendar una canción",
+      "descripcion": "Manda tu canción favorita actual a un amigo con una nota corta."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Juego de mesa rápido",
+      "descripcion": "Propón una partida rápida de cartas o un juego de mesa clásico en casa."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Cocinar algo y compartirlo",
+      "descripcion": "Prepara un postre sencillo y ofrece la mitad a alguien con quien convivas."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Ver un cortometraje en compañía",
+      "descripcion": "Busca un corto animado en internet y míralo al lado de otra persona."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Pregunta curiosa del día",
+      "descripcion": "Hazle una pregunta divertida o fuera de lo común a un compañero o familiar."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Intercambio de anécdotas",
+      "descripcion": "Cuéntale a alguien una historia graciosa de cuando eras niño."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Paseo acompañado",
+      "descripcion": "Invita a alguien a dar una vuelta corta alrededor de la cuadra conversando."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Enviar un meme oportuno",
+      "descripcion": "Manda una imagen divertida a un amigo que sabes que le hará sonreír."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Organizar un café virtual o presencial",
+      "descripcion": "Quedate a charlar media hora tomando una infusión sin mirar pantallas."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Agradecer en voz alta",
+      "descripcion": "Dile a alguien de tu entorno algo que valores genuinamente de su forma de ser."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Resolver un acertijo juntos",
+      "descripcion": "Busca un reto mental o crucigrama y resuélvanlo en equipo."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Escuchar activamente",
+      "descripcion": "Deja que un amigo hable de su serie o tema favorito sin interrumpir."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Crear una tradición de 5 minutos",
+      "descripcion": "Inventa un saludo especial o gesto cómico con alguien cercano."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Compartir una foto bonita",
+      "descripcion": "Manda una foto del cielo o de un detalle lindo del día a un ser querido."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Recomendar un libro o película",
+      "descripcion": "Comparte una obra que te haya marcado con alguien que disfrute lo mismo."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Ayudar en una pequeñez",
+      "descripcion": "Ofrece tu ayuda espontánea en una tarea rápida a alguien que tengas cerca."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Cena temática improvisada",
+      "descripcion": "Prepara la mesa con una servilleta doblada de forma graciosa para cenar."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Saludar con calidez",
+      "descripcion": "Saluda con una sonrisa amplia y sincera al vecino o tendero local."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Hacer un brindis cotidiano",
+      "descripcion": "Haz un mini brindis con agua por un pequeño logro del día en compañía."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Planear un futuro mini-plan",
+      "descripcion": "Propón un plan sencillo para el fin de semana sin complicaciones."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Dejar una nota amable",
+      "descripcion": "Esconde un papelito con un mensaje simpático en el bolsillo de alguien o en la nevera."
+    },
+    {
+      "categoria": "En Comunidad",
+      "actividad": "Escuchar música juntos",
+      "descripcion": "Comparte audífonos con alguien para escuchar una canción especial."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Estiramiento consciente",
+      "descripcion": "Dedica cinco minutos a estirar brazos y espalda respirando despacio."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Un sorbo de agua atento",
+      "descripcion": "Bebe un vaso de agua fresca prestando atención absoluta a la temperatura."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Cambio de iluminación",
+      "descripcion": "Apaga la luz directa y enciende una lámpara suave o vela aromática."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Respiración en cuatro tiempos",
+      "descripcion": "Inhala en cuatro segundos, sostén dos, exhala cuatro y relaja."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Orden minimalista express",
+      "descripcion": "Ordena únicamente un cajón pequeño o una sección de tu escritorio."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Escucha de sonidos blancos",
+      "descripcion": "Disfruta de cinco minutos de sonidos de lluvia o naturaleza con los ojos cerrados."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Masaje rápido en las manos",
+      "descripcion": "Dedica un minuto a masajear tus palmas y dedos liberando tensión."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Momento infusión reconfortante",
+      "descripcion": "Prepara un té o infusión caliente y sostén la taza sintiendo el calor."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Desconexión de notificaciones",
+      "descripcion": "Silencia el teléfono durante treinta minutos para tener paz digital."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Postura de descanso",
+      "descripcion": "Túmbate en el suelo boca arriba con las piernas apoyadas en una silla unos minutos."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Baño de agua tibia con calma",
+      "descripcion": "Dúchate prestando atención al tacto del agua en los hombros."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Escribir un pensamiento libre",
+      "descripcion": "Escribe en un papel todo lo que pase por tu mente durante tres minutos sin juzgar."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Girar los hombros y cuello",
+      "descripcion": "Haz círculos suaves con los hombros hacia atrás para liberar rigidez."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Aromaterapia casera",
+      "descripcion": "Huele una cáscara de naranja, un limón o una especia que te agrade."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Mirar por la ventana en blanco",
+      "descripcion": "Mira hacia el horizonte lejano para relajar la vista de las pantallas."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Agradecer tres cosas simples",
+      "descripcion": "Piensa en tres detalles minúsculos que hayan ido bien hoy."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Elegir la ropa del día siguiente",
+      "descripcion": "Deja lista tu ropa cómoda para mañana sin prisas ni estrés."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Masaje facial suave",
+      "descripcion": "Masa con las yemas de los dedos tu frente y mandíbula para relajar los músculos."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Cerrar los ojos un instante",
+      "descripcion": "Pausa lo que hagas, cierra los ojos y descansa la mente durante sesenta segundos."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Estirar las piernas en alto",
+      "descripcion": "Apoya las piernas contra la pared unos minutos al final del día."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Escuchar una canción nostálgica",
+      "descripcion": "Pon esa canción que te trae un recuerdo entrañable de tu infancia."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Encender una luz tenue",
+      "descripcion": "Crea un ambiente íntimo y calmado al atardecer en tu habitación."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Leer una página inspiradora",
+      "descripcion": "Lee un poema o un fragmento breve de un libro que te guste."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Hacer una pausa sin pantallas",
+      "descripcion": "Siéntate en silencio absoluto sin hacer nada durante cinco minutos."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Hacer solo lo que se sienta posible hoy",
+      "descripcion": "Adopta esta premisa amable y reduce el ritmo de tus pendientes"
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Sonreír sin motivo",
+      "descripcion": "Haz una sonrisa suave frente al espejo durante diez segundos solo para cambiar la mueca."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Reorganizar tus cojines o almohadas",
+      "descripcion": "Acomoda tu espacio de descanso para que se sienta más acogedor."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Contar respiraciones lentas",
+      "descripcion": "Cuenta diez respiraciones completas desde el uno hasta el diez en calma."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Apreciar el silencio",
+      "descripcion": "Identifica el momento más silencioso de tu casa y disfrútalo un instante."
+    },
+    {
+      "categoria": "Bienestar Cotidiano",
+      "actividad": "Caminar despacio por la casa",
+      "descripcion": "Recorre tu hogar con paso consciente, sintiendo cada pisada en el suelo."
+    }
+  ]
+}

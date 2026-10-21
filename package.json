@@ -1,0 +1,17 @@
+{
+  "name": "ruta-clara-meta",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ruta Clara Meta — orientación y acceso a rutas confiables de salud mental en Villavicencio. Prototipo TRL 4 (React + Node.js).",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "npm --prefix client run build",
+    "postinstall": "npm --prefix client install"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

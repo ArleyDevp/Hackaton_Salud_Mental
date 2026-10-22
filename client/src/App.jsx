@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CRISIS_LINES } from './crisis.js';
 import AnimatedBackground from './components/AnimatedBackground.jsx';
 import useReducedMotion from './hooks/useReducedMotion.js';
@@ -743,7 +744,7 @@ function DrawModal({ onClose }) {
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  return (
+  const contenido = (
     <div className="crisis-overlay" onClick={onClose}>
       <div
         className="crisis-panel draw-panel"
@@ -804,6 +805,10 @@ function DrawModal({ onClose }) {
       </div>
     </div>
   );
+
+  // Se monta en <body>: dentro de <main> el overlay queda atrapado en un
+  // contexto de apilado con z-index 1 y el boton flotante de crisis lo tapaba.
+  return createPortal(contenido, document.body);
 }
 
 /* ==========================================================================
@@ -2314,6 +2319,365 @@ function RegalateTab({ activities }) {
 }
 
 /* ==========================================================================
+   Soporte: landing para reportar fallos
+   ========================================================================== */
+// Dirección sintética (`.test` está reservado y no puede existir de verdad).
+// El buzón real se cambia con la variable de entorno SUPPORT_EMAIL.
+const SUPPORT_EMAIL_DESTINO = 'soporte@rutaclara.test';
+
+const SUPPORT_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** La landing de soporte se sirve en /soporte (la SPA resuelve la ruta). */
+const esRutaSoporte = (ruta) => /^\/soporte\/?$/i.test(ruta || '');
+
+const SUPPORT_TIPOS = [
+  { id: 'no-carga', label: 'Algo no carga o se ve roto' },
+  { id: 'no-responde', label: 'Un botón o enlace no responde' },
+  { id: 'texto', label: 'Un texto o un dato está mal' },
+  { id: 'accesibilidad', label: 'Un problema de accesibilidad' },
+  { id: 'otro', label: 'Otro' }
+];
+
+const SUPPORT_GRAVEDAD = [
+  { id: 'baja', label: 'Baja', ayuda: 'Molesta, pero puedo seguir usando el sitio.' },
+  { id: 'media', label: 'Media', ayuda: 'Me impide terminar lo que estaba haciendo.' },
+  { id: 'alta', label: 'Alta', ayuda: 'No puedo usar la sección o muestra información riesgosa.' }
+];
+
+const SUPPORT_SECCIONES = [
+  { id: 'inicio', label: 'Inicio · Autocuidado' },
+  { id: 'lineas', label: 'Líneas de ayuda' },
+  { id: 'viento', label: 'Cuéntaselo al viento' },
+  { id: 'centros', label: 'Centros de atención' },
+  { id: 'paz', label: 'Zona de paz' },
+  { id: 'regalate', label: 'Regálate un momento' },
+  { id: 'soporte', label: 'Esta página de soporte' },
+  { id: 'otra', label: 'Otra / no estoy seguro' }
+];
+
+const SUPPORT_VACIO = {
+  nombre: '',
+  correo: '',
+  tipo: 'no-responde',
+  gravedad: 'media',
+  seccion: 'inicio',
+  mensaje: '',
+  pasos: ''
+};
+
+function SupportPage({ onBack }) {
+  const [form, setForm] = useState(SUPPORT_VACIO);
+  const [estado, setEstado] = useState('inicio'); // inicio | enviando | ok | error
+  const [errores, setErrores] = useState({});
+  const [ticket, setTicket] = useState('');
+  const [fallo, setFallo] = useState('');
+  const exitoRef = useRef(null);
+
+  const cambiar = (campo) => (e) => {
+    setForm((previo) => ({ ...previo, [campo]: e.target.value }));
+    setErrores((previo) => ({ ...previo, [campo]: undefined }));
+  };
+
+  const validar = () => {
+    const nuevos = {};
+    if (form.mensaje.trim().length < 15) {
+      nuevos.mensaje = 'Describe qué pasó con al menos una frase completa.';
+    }
+    if (form.correo.trim() && !SUPPORT_EMAIL_RE.test(form.correo.trim())) {
+      nuevos.correo = 'Revisa el correo: parece estar incompleto.';
+    }
+    setErrores(nuevos);
+    return Object.keys(nuevos).length === 0;
+  };
+
+  const enviar = async (evento) => {
+    evento.preventDefault();
+    if (!validar()) return;
+
+    setEstado('enviando');
+    setFallo('');
+    try {
+      const respuesta = await fetch('/api/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, contexto: navigator.userAgent })
+      });
+      const datos = await respuesta.json().catch(() => ({}));
+      if (!respuesta.ok) throw new Error(datos.error || 'No pudimos enviar el reporte.');
+      setTicket(datos.ticket || '');
+      setEstado('ok');
+    } catch (error) {
+      setFallo(
+        error.message ||
+          'No pudimos enviar el reporte. Revisa tu conexión e inténtalo otra vez.'
+      );
+      setEstado('error');
+    }
+  };
+
+  useEffect(() => {
+    if (estado === 'ok' && exitoRef.current) exitoRef.current.focus();
+  }, [estado]);
+
+  if (estado === 'ok') {
+    return (
+      <section className="support-page">
+        <div className="container support-narrow">
+          <div className="support-card support-success" role="status" ref={exitoRef} tabIndex={-1}>
+            <span className="support-success-icon">
+              <Icon name="check" size={22} />
+            </span>
+            <h1>Reporte enviado</h1>
+            <p className="support-lead">
+              Llegó a <strong>{SUPPORT_EMAIL_DESTINO}</strong>. Si dejaste un correo, te escribimos
+              ahí para avisarte cuando esté corregido.
+            </p>
+            <p className="support-ticket">
+              Tu número de seguimiento es <strong>{ticket}</strong>
+            </p>
+            <div className="support-success-actions">
+              <button
+                type="button"
+                className="primary-button support-submit"
+                onClick={() => {
+                  setForm(SUPPORT_VACIO);
+                  setErrores({});
+                  setEstado('inicio');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                Enviar otro reporte
+              </button>
+              <button type="button" className="support-link" onClick={onBack}>
+                Volver al inicio
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="support-page">
+      <div className="container">
+        <button type="button" className="support-back" onClick={onBack}>
+          <span className="support-back-icon" aria-hidden="true">
+            <Icon name="arrow" size={14} />
+          </span>
+          Volver al inicio
+        </button>
+
+        <div className="support-head">
+          <span className="section-number">Soporte</span>
+          <h1>
+            Algo no está funcionando.
+            <br />
+            Cuéntanos qué pasó.
+          </h1>
+          <p className="support-lead">
+            Este espacio es para fallos del sitio: una pantalla en blanco, un botón que no responde,
+            un dato equivocado. Tu reporte llega a {SUPPORT_EMAIL_DESTINO} y nos ayuda a corregirlo.
+          </p>
+        </div>
+
+        <div className="support-grid">
+          <form className="support-card" onSubmit={enviar} noValidate>
+            <div className="support-row">
+              <div className="support-field">
+                <label className="support-label" htmlFor="sup-nombre">
+                  Nombre o apodo <span className="support-opt">(opcional)</span>
+                </label>
+                <input
+                  id="sup-nombre"
+                  className="support-input"
+                  type="text"
+                  maxLength={80}
+                  autoComplete="name"
+                  value={form.nombre}
+                  onChange={cambiar('nombre')}
+                  placeholder="Cómo quieres que te llamemos"
+                />
+              </div>
+
+              <div className="support-field">
+                <label className="support-label" htmlFor="sup-correo">
+                  Correo para responderte <span className="support-opt">(opcional)</span>
+                </label>
+                <input
+                  id="sup-correo"
+                  className={`support-input ${errores.correo ? 'is-error' : ''}`}
+                  type="email"
+                  maxLength={120}
+                  autoComplete="email"
+                  value={form.correo}
+                  onChange={cambiar('correo')}
+                  placeholder="tu@correo.com"
+                  aria-invalid={Boolean(errores.correo)}
+                  aria-describedby={errores.correo ? 'sup-correo-error' : undefined}
+                />
+                {errores.correo && (
+                  <p className="support-error" id="sup-correo-error">
+                    {errores.correo}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="support-row">
+              <div className="support-field">
+                <label className="support-label" htmlFor="sup-tipo">
+                  ¿Qué pasó?
+                </label>
+                <select
+                  id="sup-tipo"
+                  className="support-select"
+                  value={form.tipo}
+                  onChange={cambiar('tipo')}
+                >
+                  {SUPPORT_TIPOS.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="support-field">
+                <label className="support-label" htmlFor="sup-seccion">
+                  ¿Dónde lo viste?
+                </label>
+                <select
+                  id="sup-seccion"
+                  className="support-select"
+                  value={form.seccion}
+                  onChange={cambiar('seccion')}
+                >
+                  {SUPPORT_SECCIONES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <fieldset className="support-levels">
+              <legend className="support-label">¿Qué tanto te afecta?</legend>
+              <div className="support-chips">
+                {SUPPORT_GRAVEDAD.map((g) => (
+                  <label
+                    key={g.id}
+                    className={`support-chip ${form.gravedad === g.id ? 'is-on' : ''}`}
+                    title={g.ayuda}
+                  >
+                    <input
+                      type="radio"
+                      name="gravedad"
+                      value={g.id}
+                      checked={form.gravedad === g.id}
+                      onChange={cambiar('gravedad')}
+                    />
+                    {g.label}
+                  </label>
+                ))}
+              </div>
+              <p className="support-hint">
+                {SUPPORT_GRAVEDAD.find((g) => g.id === form.gravedad)?.ayuda}
+              </p>
+            </fieldset>
+
+            <div className="support-field">
+              <label className="support-label" htmlFor="sup-mensaje">
+                Cuéntanos qué pasó
+              </label>
+              <textarea
+                id="sup-mensaje"
+                className={`support-textarea ${errores.mensaje ? 'is-error' : ''}`}
+                rows={5}
+                maxLength={2000}
+                value={form.mensaje}
+                onChange={cambiar('mensaje')}
+                placeholder="Por ejemplo: en Centros de atención el mapa se queda en blanco y no aparece ningún centro."
+                aria-invalid={Boolean(errores.mensaje)}
+                aria-describedby={errores.mensaje ? 'sup-mensaje-error' : 'sup-mensaje-ayuda'}
+                required
+              />
+              {errores.mensaje ? (
+                <p className="support-error" id="sup-mensaje-error">
+                  {errores.mensaje}
+                </p>
+              ) : (
+                <p className="support-hint" id="sup-mensaje-ayuda">
+                  Con qué estabas, qué esperabas y qué apareció en su lugar.
+                </p>
+              )}
+            </div>
+
+            <div className="support-field">
+              <label className="support-label" htmlFor="sup-pasos">
+                Pasos para reproducirlo <span className="support-opt">(opcional)</span>
+              </label>
+              <textarea
+                id="sup-pasos"
+                className="support-textarea support-textarea--short"
+                rows={3}
+                maxLength={1200}
+                value={form.pasos}
+                onChange={cambiar('pasos')}
+                placeholder={'1. Abrí Inicio\n2. Toqué Explorar en Dibujo libre\n3. El lienzo no respondió'}
+              />
+            </div>
+
+            {estado === 'error' && (
+              <p className="support-alert" role="alert">
+                {fallo}
+              </p>
+            )}
+
+            <div className="support-foot">
+              <button type="submit" className="primary-button support-submit" disabled={estado === 'enviando'}>
+                {estado === 'enviando' ? 'Enviando…' : 'Enviar reporte'}
+              </button>
+              <p className="support-privacy">
+                <Icon name="lock" size={13} />
+                Se envía solo lo que escribes aquí. No incluyas datos de salud ni de otras personas.
+              </p>
+            </div>
+          </form>
+
+          <aside className="support-aside">
+            <h2 className="support-aside-title">Qué nos ayuda a arreglarlo</h2>
+            <ul className="support-list">
+              <li>En qué pantalla estabas y qué botón tocaste.</li>
+              <li>Qué esperabas ver y qué apareció en su lugar.</li>
+              <li>Si pasa siempre o solo a veces.</li>
+              <li>Si usas celular, tableta o computador.</li>
+            </ul>
+
+            <div className="support-aside-block">
+              <span className="support-label">Buzón del proyecto</span>
+              <p className="support-email">{SUPPORT_EMAIL_DESTINO}</p>
+              <p className="support-hint">
+                Cada reporte recibe un número de seguimiento para que puedas mencionarlo después.
+              </p>
+            </div>
+
+            <div className="support-aside-block support-aside-block--calm">
+              <span className="support-label">Si necesitas ayuda ahora</span>
+              <p className="support-hint">
+                Este formulario no es un canal de urgencias. Si estás en crisis, usa el botón
+                «Necesito hablar con alguien ahora» que está en todas las pantallas.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ==========================================================================
    Footer
    ========================================================================== */
 function Footer({ sources, setPanel }) {
@@ -2337,6 +2701,17 @@ function Footer({ sources, setPanel }) {
             <button onClick={() => setPanel('privacy')}>Privacidad</button>
             <span>·</span>
             <button onClick={() => setPanel('about')}>Acerca del proyecto</button>
+            <span>·</span>
+            <a
+              className="footer-support"
+              href="/soporte"
+              target="_blank"
+              rel="noreferrer"
+              title="Reportar un problema del sistema (se abre en una pestaña nueva)"
+              aria-label="Soporte: reportar un problema del sistema, se abre en una pestaña nueva"
+            >
+              Soporte
+            </a>
           </div>
         </div>
 
@@ -2420,6 +2795,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('inicio');
   const [crisisOpen, setCrisisOpen] = useState(false);
   const [panel, setPanel] = useState(null);
+  // La landing de soporte vive en /soporte: se puede enlazar y recargar.
+  const [enSoporte, setEnSoporte] = useState(() => esRutaSoporte(window.location.pathname));
 
   const phrases = useMemo(
     () => (data?.phrases?.length ? data.phrases : FALLBACK_PHRASES),
@@ -2436,9 +2813,20 @@ export default function App() {
       .catch(() => setError(true));
   }, []);
 
+  // Atrás / adelante del navegador también cambian de página.
+  useEffect(() => {
+    const alVolver = () => setEnSoporte(esRutaSoporte(window.location.pathname));
+    window.addEventListener('popstate', alVolver);
+    return () => window.removeEventListener('popstate', alVolver);
+  }, []);
+
   // El título de la pestaña sigue a la sección visible; en la barra de
   // navegación se muestra el nombre corto "Al viento" para no desarmar el menú.
   useEffect(() => {
+    if (enSoporte) {
+      document.title = 'Soporte | Ruta Clara Meta';
+      return;
+    }
     const tab = TABS.find((t) => t.id === activeTab);
     document.title =
       activeTab === 'viento'
@@ -2446,13 +2834,24 @@ export default function App() {
         : tab && activeTab !== 'inicio'
           ? `${tab.label} | Ruta Clara Meta`
           : 'Ruta Clara Meta | Orientación en salud mental';
-  }, [activeTab]);
+  }, [activeTab, enSoporte]);
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const volverAlInicio = () => {
+    if (window.location.pathname !== '/') window.history.pushState({}, '', '/');
+    setEnSoporte(false);
+    setActiveTab('inicio');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
   const setTab = (id) => {
+    if (enSoporte) {
+      window.history.pushState({}, '', '/');
+      setEnSoporte(false);
+    }
     setActiveTab(id);
     if (id !== 'inicio') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -2491,7 +2890,7 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'inicio' && (
+        {!enSoporte && activeTab === 'inicio' && (
           <HomeTab
             data={data}
             phrases={phrases}
@@ -2500,11 +2899,12 @@ export default function App() {
             scrollTo={scrollTo}
           />
         )}
-        {activeTab === 'lineas' && <LinesTab lines={lines} />}
-        {activeTab === 'viento' && <WindTab setTab={setTab} />}
-        {activeTab === 'centros' && <CentersTab centers={data?.centers} />}
-        {activeTab === 'paz' && <PeaceTab phrases={phrases} setTab={setTab} />}
-        {activeTab === 'regalate' && <RegalateTab activities={data?.regalate} />}
+        {!enSoporte && activeTab === 'lineas' && <LinesTab lines={lines} />}
+        {!enSoporte && activeTab === 'viento' && <WindTab setTab={setTab} />}
+        {!enSoporte && activeTab === 'centros' && <CentersTab centers={data?.centers} />}
+        {!enSoporte && activeTab === 'paz' && <PeaceTab phrases={phrases} setTab={setTab} />}
+        {!enSoporte && activeTab === 'regalate' && <RegalateTab activities={data?.regalate} />}
+        {enSoporte && <SupportPage onBack={volverAlInicio} />}
       </main>
 
       <Footer sources={data?.sources} setPanel={setPanel} />

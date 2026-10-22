@@ -145,7 +145,7 @@ const Icon = ({ name, size = 20 }) => {
 const TABS = [
   { id: 'inicio', label: 'Inicio' },
   { id: 'lineas', label: 'Líneas de ayuda' },
-  { id: 'libros', label: 'Libros' },
+  { id: 'viento', label: 'Al viento' },
   { id: 'centros', label: 'Centros presenciales' },
   { id: 'paz', label: 'Zona de paz' },
   { id: 'regalate', label: 'Regálate momentos' }
@@ -197,108 +197,48 @@ function useRotatingPhrase(phrases, interval = 5200) {
   return { text: phrases ? phrases[index] : '', visible };
 }
 
-// Enlaces reales de los libros consultando el backend (Open Library, con caché).
-function useBookLinks(books) {
-  const [links, setLinks] = useState({});
-
-  useEffect(() => {
-    let alive = true;
-    (books || []).forEach((b) => {
-      const q = new URLSearchParams({ title: b.title, author: b.author });
-      fetch(`/api/books?${q.toString()}`)
-        .then((r) => (r.ok ? r.json() : null))
-        .then((link) => {
-          if (link && alive) setLinks((prev) => ({ ...prev, [b.title]: link }));
-        })
-        .catch(() => {});
-    });
-    return () => {
-      alive = false;
-    };
-  }, [books]);
-
-  return links;
-}
-
 /* --------------------------------------------------------------------------
-   Música de relajación para la Zona de paz.
-   Intenta traer una pista real desde Internet Archive (API abierta, sin clave).
-   Si la red falla, genera un ambiente suave en el propio navegador para que
-   el botón siempre funcione. Nunca suena sola: siempre la enciende la persona.
+   Música de la Zona de paz: beats suaves y tranquilizantes generados con
+   Web Audio. Arranca sola al entrar a la pestaña, no hay voces ni podcasts,
+   no depende de la red y siempre se puede pausar.
    -------------------------------------------------------------------------- */
+const BEAT_SECONDS = 60 / 52; // 52 pulsos por minuto: ritmo lento y calmado
+const CHIME_NOTES = [392.0, 440.0, 523.25, 493.88]; // sol, la, do' y si
+
 function useCalmMusic() {
   const [playing, setPlaying] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [error, setError] = useState(false);
 
-  const audioRef = useRef(null);
   const ctxRef = useRef(null);
+  const masterRef = useRef(null);
   const nodesRef = useRef([]);
-  const fadeRef = useRef(null);
-  const modeRef = useRef(null); // 'stream' | 'synth'
-  const urlRef = useRef(null);
+  const timerRef = useRef(null);
+  const nextBeatRef = useRef(0);
+  const beatIndexRef = useRef(0);
 
-  const stop = () => {
-    try {
-      if (fadeRef.current) {
-        clearInterval(fadeRef.current);
-        fadeRef.current = null;
-      }
-      if (modeRef.current === 'stream' && audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (modeRef.current === 'synth' && ctxRef.current) {
-        nodesRef.current.forEach((n) => {
-          try {
-            n.stop();
-          } catch {
-            /* nodo ya detenido */
-          }
-        });
-        nodesRef.current = [];
-        const ctx = ctxRef.current;
-        ctxRef.current = null;
-        ctx.close();
-      }
-    } catch {
-      /* aunque algo falle, la música siempre se puede apagar */
-    } finally {
-      modeRef.current = null;
-      setPlaying(false);
-    }
-  };
+  // Pad cálido que respira de fondo mientras suenan los beats.
+  const startPad = (ctx, master) => {
+    const chord = [
+      [174.61, 0.055], // F3
+      [220.0, 0.05], // A3
+      [261.63, 0.045], // C4
+      [329.63, 0.03] // E4
+    ];
 
-  useEffect(
-    () => () => stop(),
-    []
-  );
-
-  // Respaldo: un pad suave generado con Web Audio (sin internet, sin archivos).
-  const startSynth = () => {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return false;
-    const ctx = new AC();
-    ctxRef.current = ctx;
-
-    const master = ctx.createGain();
-    master.gain.value = 0.0001;
-    master.connect(ctx.destination);
-    master.gain.exponentialRampToValueAtTime(0.07, ctx.currentTime + 4);
-
-    const freqs = [174.61, 261.63, 329.63, 392.0];
-    freqs.forEach((f, i) => {
+    chord.forEach(([freq, level], i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = i % 2 ? 'sine' : 'triangle';
-      osc.frequency.value = f;
-      gain.gain.value = 0.2 / (i + 1);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(level, ctx.currentTime + 6);
 
-      // vibrato lentísimo para que el sonido "respire"
+      // vibrato lentísimo: el pad parece que respira
       const lfo = ctx.createOscillator();
       const lfoGain = ctx.createGain();
-      lfo.frequency.value = 0.04 + i * 0.013;
-      lfoGain.gain.value = 0.1 / (i + 1);
+      lfo.frequency.value = 0.05 + i * 0.017;
+      lfoGain.gain.value = level * 0.45;
       lfo.connect(lfoGain);
       lfoGain.connect(gain.gain);
 
@@ -308,145 +248,173 @@ function useCalmMusic() {
       lfo.start();
       nodesRef.current.push(osc, lfo);
     });
-
-    modeRef.current = 'synth';
-    return true;
   };
 
-  // Algunos navegadores dejan `play()` en espera; no queremos quedarnos colgados.
-  const withTimeout = (promise, ms) =>
-    Promise.race([
-      promise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error('tiempo agotado')), ms))
-    ]);
+  // Beat suave: golpe grave que se apaga despacio, como un latido calmado.
+  const scheduleBeat = (ctx, master, when, index) => {
+    const kick = ctx.createOscillator();
+    const kickGain = ctx.createGain();
+    kick.type = 'sine';
+    kick.frequency.setValueAtTime(112, when);
+    kick.frequency.exponentialRampToValueAtTime(45, when + 0.25);
+    kickGain.gain.setValueAtTime(0.0001, when);
+    kickGain.gain.exponentialRampToValueAtTime(index % 4 === 0 ? 0.16 : 0.085, when + 0.025);
+    kickGain.gain.exponentialRampToValueAtTime(0.0001, when + 0.75);
+    kick.connect(kickGain).connect(master);
+    kick.start(when);
+    kick.stop(when + 0.8);
+    nodesRef.current.push(kick);
 
-  const stopSynth = () => {
-    if (modeRef.current !== 'synth' || !ctxRef.current) return;
-    nodesRef.current.forEach((n) => {
-      try {
-        n.stop();
-      } catch {
-        /* nodo ya detenido */
-      }
-    });
-    nodesRef.current = [];
+    // Cada dos beats, una campanita muy tenue y lejana.
+    if (index % 2 === 1) {
+      const bell = ctx.createOscillator();
+      const bellGain = ctx.createGain();
+      bell.type = 'sine';
+      bell.frequency.value = CHIME_NOTES[((index - 1) / 2) % CHIME_NOTES.length];
+      bellGain.gain.setValueAtTime(0.0001, when);
+      bellGain.gain.exponentialRampToValueAtTime(0.05, when + 0.05);
+      bellGain.gain.exponentialRampToValueAtTime(0.0001, when + 1.7);
+      bell.connect(bellGain).connect(master);
+      bell.start(when);
+      bell.stop(when + 1.8);
+      nodesRef.current.push(bell);
+    }
+  };
+
+  // Programa los beats que faltan dentro de una ventana corta de tiempo.
+  const scheduler = () => {
     const ctx = ctxRef.current;
-    ctxRef.current = null;
-    ctx.close();
-  };
-
-  const startStream = async (url) => {
-    const audio = new Audio();
-    audio.src = url;
-    audio.loop = true;
-    audio.volume = 0;
-    audio.preload = 'auto';
-    await withTimeout(audio.play(), 8000);
-
-    // La pista real ya suena: recién ahora apagamos el ambiente generado.
-    stopSynth();
-    audioRef.current = audio;
-    modeRef.current = 'stream';
-
-    const start = Date.now();
-    fadeRef.current = setInterval(() => {
-      const v = Math.min(0.5, ((Date.now() - start) / 4000) * 0.5);
-      audio.volume = v;
-      if (v >= 0.5 && fadeRef.current) {
-        clearInterval(fadeRef.current);
-        fadeRef.current = null;
-      }
-    }, 120);
-  };
-
-  // Busca una pista de relajación real en Internet Archive (API abierta, sin clave).
-  const resolveTrack = async () => {
-    const q = new URLSearchParams({
-      q: 'mediatype:audio AND (title:(meditation OR ambient OR relaxing OR "new age" OR calm OR sleep OR rain OR nature OR piano OR zen OR spa) OR subject:(meditation OR ambient OR "new age"))',
-      sort: 'downloads desc',
-      rows: '30',
-      page: '1',
-      output: 'json'
-    });
-    // Ojo: no se puede repetir la clave en un objeto; se agregan con append.
-    q.append('fl[]', 'identifier');
-    q.append('fl[]', 'title');
-
-    const res = await withTimeout(
-      fetch(`https://archive.org/advancedsearch.php?${q.toString()}`),
-      9000
-    );
-    const json = await res.json();
-
-    const calm =
-      /medita|ambient|relax|new age|calm|sleep|rain|nature|piano|zen|spa|chill|ocean|forest/i;
-    const pool = (json?.response?.docs || []).filter((d) =>
-      calm.test(`${d.title || ''} ${d.identifier || ''}`)
-    );
-    if (!pool.length) throw new Error('sin resultados');
-
-    // Probamos hasta 3 candidatas antes de quedarnos con el sonido generado.
-    for (let n = 0; n < 3 && pool.length > 0; n += 1) {
-      const pick = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-      try {
-        const meta = await withTimeout(
-          fetch(`https://archive.org/metadata/${encodeURIComponent(pick.identifier)}`),
-          9000
-        ).then((r) => r.json());
-
-        const files = (meta?.files || []).filter(
-          (f) => /\.(mp3|ogg|m4a)$/i.test(f.name) && f.name.indexOf('__') !== 0
-        );
-        const mp3 =
-          files.find((f) => /\.mp3$/i.test(f.name) && Number(f.size || 0) < 25000000) ||
-          files.find((f) => Number(f.size || 0) < 25000000) ||
-          files[0];
-        if (!mp3) continue;
-
-        return `https://archive.org/download/${encodeURIComponent(
-          pick.identifier
-        )}/${encodeURIComponent(mp3.name)}`;
-      } catch {
-        /* probamos la siguiente candidata */
-      }
+    const master = masterRef.current;
+    if (!ctx || !master) return;
+    let guard = 0;
+    while (nextBeatRef.current < ctx.currentTime + 0.8 && guard < 32) {
+      scheduleBeat(ctx, master, nextBeatRef.current, beatIndexRef.current);
+      nextBeatRef.current += BEAT_SECONDS;
+      beatIndexRef.current += 1;
+      guard += 1;
     }
-    throw new Error('sin reproducible');
   };
 
-  const toggle = async () => {
-    if (playing) {
-      stop();
-      return;
-    }
-    setError(false);
-
-    // 1) El sonido de ambiente arranca al instante y no depende de la red.
-    if (!startSynth()) {
+  // Enciende los beats y el pad, con una entrada suave de 4 segundos.
+  const start = () => {
+    if (ctxRef.current) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) {
       setError(true);
       return;
     }
-    setPlaying(true);
 
-    // 2) En segundo plano buscamos una pista real y, si llega, la cambiamos
-    //    sin cortar la calma. Si no llega, seguimos con el sonido generado.
-    if (urlRef.current) {
-      startStream(urlRef.current).catch(() => {});
-      return;
-    }
-
-    setLoading(true);
     try {
-      const url = await resolveTrack();
-      urlRef.current = url;
-      if (modeRef.current === 'synth') await startStream(url);
+      const ctx = new AC();
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.0001, ctx.currentTime);
+      master.connect(ctx.destination);
+
+      ctxRef.current = ctx;
+      masterRef.current = master;
+      nodesRef.current = [];
+      nextBeatRef.current = ctx.currentTime + 0.2;
+      beatIndexRef.current = 0;
+
+      master.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + 4);
+
+      startPad(ctx, master);
+      scheduler();
+      timerRef.current = setInterval(scheduler, 60);
+
+      setError(false);
+      setPlaying(true);
+
+      // Los navegadores exigen un gesto previo del usuario: si no lo hay, avisamos.
+      if (ctx.state === 'suspended') {
+        ctx
+          .resume()
+          .then(() => setBlocked(false))
+          .catch(() => setBlocked(true));
+      }
     } catch {
-      /* seguimos con el sonido generado; no es un error para quien nos visita */
-    } finally {
-      setLoading(false);
+      ctxRef.current = null;
+      masterRef.current = null;
+      setError(true);
+      setPlaying(false);
     }
   };
 
-  return { playing, loading, error, toggle };
+  const stop = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    try {
+      const ctx = ctxRef.current;
+      const master = masterRef.current;
+      nodesRef.current.forEach((n) => {
+        try {
+          n.stop();
+        } catch {
+          /* nodo ya detenido */
+        }
+      });
+      nodesRef.current = [];
+      if (ctx && master) {
+        master.gain.cancelScheduledValues(ctx.currentTime);
+        master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
+        master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
+        setTimeout(() => {
+          try {
+            ctx.close();
+          } catch {
+            /* contexto ya cerrado */
+          }
+        }, 1000);
+      }
+    } catch {
+      /* la música siempre se puede apagar */
+    } finally {
+      ctxRef.current = null;
+      masterRef.current = null;
+      setPlaying(false);
+      setBlocked(false);
+    }
+  };
+
+  // Al salir de la pestaña la música se detiene: nada queda sonando solo.
+  useEffect(() => () => stop(), []);
+
+  // Si el navegador bloqueó el autoplay, basta con tocar la pantalla una vez.
+  useEffect(() => {
+    if (!blocked) return undefined;
+    const resume = () => {
+      const ctx = ctxRef.current;
+      if (ctx && ctx.state === 'suspended') {
+        ctx
+          .resume()
+          .then(() => setBlocked(false))
+          .catch(() => {});
+      }
+    };
+    document.addEventListener('pointerdown', resume);
+    document.addEventListener('keydown', resume);
+    return () => {
+      document.removeEventListener('pointerdown', resume);
+      document.removeEventListener('keydown', resume);
+    };
+  }, [blocked]);
+
+  const toggle = () => {
+    if (playing) stop();
+    else start();
+  };
+
+  // Todo el sonido se genera en el dispositivo: no hay audio externo ni podcasts.
+
+  // Arranca sola al entrar a la Zona de paz.
+  useEffect(() => {
+    start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return { playing, blocked, error, toggle };
 }
 
 /* ==========================================================================
@@ -641,11 +609,11 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
                 <small>Haz una pausa</small>
                 <span />
               </div>
-            </div>
-            <div className="calm-actions centered visual-actions">
-              <button className="calm-button" onClick={() => setTab('paz')}>
-                <Icon name="leaf" size={17} /> Zona de paz
-              </button>
+              <div className="calm-actions centered visual-actions">
+                <button className="calm-button" onClick={() => setTab('paz')}>
+                  <Icon name="leaf" size={17} /> Zona de paz
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -827,69 +795,323 @@ function LinesTab({ lines }) {
 }
 
 /* ==========================================================================
-   Libros (con enlaces reales vía Google Books)
+   Cuéntaselo al viento — reemplaza a "Libros"
+   La persona escribe lo que le pesa y lo suelta. El texto no sale nunca de
+   su pantalla: no se pide ningún dato ni se guarda nada en ningún lugar.
    ========================================================================== */
-function BookLink({ book, link }) {
-  if (link?.readUrl) {
-    return (
-      <a className="book-link read" href={link.readUrl} target="_blank" rel="noreferrer">
-        <Icon name="book" size={16} /> Leer ahora
-      </a>
-    );
-  }
-  if (link) {
-    return (
-      <a className="book-link buy" href={link.buyUrl} target="_blank" rel="noreferrer">
-        <Icon name="sparkle" size={16} /> Toca comprarlo
-      </a>
-    );
-  }
+const WIND_PETALS = ['#ffb3c9', '#ffd66b', '#bfe5ed', '#dedaf0', '#cfe3d5'];
+const WIND_GIFTS = ['flower', 'butterfly', 'light'];
+const WIND_MOODS = [
+  { id: 'igual', label: 'Igual' },
+  { id: 'poco', label: 'Un poco mejor' },
+  { id: 'mucho', label: 'Mucho mejor' }
+];
+
+// Cada partícula nace dentro del recuadro y sale disparada hacia la derecha.
+function windBits(count) {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: 3 + ((i * 37) % 93),
+    top: 6 + ((i * 53) % 78),
+    delay: ((i * 13) % 95) / 100,
+    dur: 2.3 + ((i * 7) % 9) * 0.17,
+    dx: 540 + ((i * 29) % 440),
+    dy: -150 - ((i * 17) % 210),
+    rot: 140 + ((i * 41) % 340),
+    size: 9 + ((i * 5) % 9),
+    color: WIND_PETALS[i % WIND_PETALS.length],
+    kind: i % 3
+  }));
+}
+
+function WindBit({ bit }) {
   return (
-    <a
-      className="book-link search"
-      href={`https://openlibrary.org/search?q=${encodeURIComponent(`${book.title} ${book.author}`)}`}
-      target="_blank"
-      rel="noreferrer"
+    <span
+      className={`wind-bit wind-bit-${bit.kind}`}
+      aria-hidden="true"
+      style={{
+        left: `${bit.left}%`,
+        top: `${bit.top}%`,
+        width: `${bit.size}px`,
+        height: `${bit.size}px`,
+        color: bit.color,
+        animationDuration: `${bit.dur}s`,
+        animationDelay: `${bit.delay}s`,
+        '--dx': `${bit.dx}px`,
+        '--dy': `${bit.dy}px`,
+        '--rot': `${bit.rot}deg`
+      }}
     >
-      <Icon name="book" size={16} /> Buscar en Open Library
-    </a>
+      <svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden="true">
+        {bit.kind === 0 && (
+          <path d="M12 2C7 7 5 12 6 16c1 4 3 6 6 6s5-2 6-6c1-4-1-9-6-14z" fill="currentColor" />
+        )}
+        {bit.kind === 1 && (
+          <ellipse cx="12" cy="12" rx="6.5" ry="9" fill="currentColor" transform="rotate(25 12 12)" />
+        )}
+        {bit.kind === 2 && <circle cx="12" cy="12" r="5" fill="currentColor" />}
+      </svg>
+    </span>
   );
 }
 
-function BooksTab({ books }) {
-  const all = books || [];
-  const links = useBookLinks(all);
+// Lo que el viento devuelve: una flor, una mariposa o una luz encendida.
+function WindGift({ kind }) {
+  if (kind === 'butterfly') {
+    return (
+      <svg className="gift-svg" viewBox="0 0 120 120" aria-hidden="true">
+        <g className="gift-wing gift-wing-left">
+          <path d="M60 60C46 36 24 30 18 44c-5 12 8 24 24 26 8 1 14-3 18-10z" fill="#bfe5ed" />
+          <path d="M60 60C44 74 34 92 44 98c9 5 20-6 22-20 1-7 0-13-6-18z" fill="#dedaf0" />
+        </g>
+        <g className="gift-wing gift-wing-right">
+          <path d="M60 60c14-24 36-30 42-16 5 12-8 24-24 26-8 1-14-3-18-10z" fill="#bfe5ed" />
+          <path d="M60 60c16 14 26 32 16 38-9 5-20-6-22-20-1-7 0-13 6-18z" fill="#dedaf0" />
+        </g>
+        <path d="M60 42v36" stroke="#526a71" strokeWidth="3.5" strokeLinecap="round" />
+        <path d="M60 45l-7-9M60 45l7-9" stroke="#526a71" strokeWidth="3" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (kind === 'light') {
+    return (
+      <svg className="gift-svg" viewBox="0 0 120 120" aria-hidden="true">
+        <g className="gift-rays">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <rect
+              key={i}
+              x="58.5"
+              y="6"
+              width="3.5"
+              height="15"
+              rx="1.75"
+              fill="#ffd66b"
+              transform={`rotate(${i * 45} 60 60)`}
+            />
+          ))}
+        </g>
+        <circle className="gift-glow" cx="60" cy="60" r="25" fill="#ffe08a" />
+        <circle cx="60" cy="60" r="16" fill="#ffd66b" />
+        <circle cx="54" cy="54" r="5.5" fill="#fff" opacity="0.9" />
+      </svg>
+    );
+  }
 
   return (
-    <section className="tab-section books-section">
+    <svg className="gift-svg" viewBox="0 0 120 120" aria-hidden="true">
+      <path d="M60 76v34" stroke="#7cae6a" strokeWidth="4" strokeLinecap="round" />
+      <path d="M60 98c-10 0-15-5-16-12 8-1 14 4 16 12z" fill="#96c47f" />
+      <g className="gift-bloom">
+        {[0, 60, 120, 180, 240, 300].map((a) => (
+          <ellipse
+            key={a}
+            cx="60"
+            cy="34"
+            rx="13"
+            ry="21"
+            fill="#ffb3c9"
+            transform={`rotate(${a} 60 60)`}
+          />
+        ))}
+        <circle cx="60" cy="60" r="13" fill="#ffd66b" />
+      </g>
+    </svg>
+  );
+}
+
+function WindTab({ setTab }) {
+  const [text, setText] = useState('');
+  const [phase, setPhase] = useState('write'); // 'write' | 'blowing' | 'revealed'
+  const [bits, setBits] = useState([]);
+  const [gift, setGift] = useState('flower');
+  const [feeling, setFeeling] = useState(null);
+  const timerRef = useRef(null);
+  const settledRef = useRef(false);
+
+  const stopTimer = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  // El texto desaparece para siempre en cuanto el viento se lo lleva.
+  const settle = () => {
+    if (settledRef.current) return;
+    settledRef.current = true;
+    stopTimer();
+    setGift(WIND_GIFTS[Math.floor(Math.random() * WIND_GIFTS.length)]);
+    setBits([]);
+    setText('');
+    setPhase('revealed');
+  };
+
+  // Red de seguridad por si el navegador pausa los timers.
+  const onAnimationEnd = (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains('wind-bit')) settle();
+  };
+
+  const release = () => {
+    if (phase !== 'write' || !text.trim()) return;
+    const reduced =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const palabras = text.trim().split(/\s+/).length;
+    const cantidad = Math.max(20, Math.min(48, palabras * 3));
+
+    settledRef.current = false;
+    setBits(reduced ? [] : windBits(cantidad));
+    setFeeling(null);
+    setPhase('blowing');
+    stopTimer();
+    timerRef.current = setTimeout(settle, reduced ? 260 : 3400);
+  };
+
+  const reset = () => {
+    stopTimer();
+    settledRef.current = true;
+    setBits([]);
+    setText('');
+    setFeeling(null);
+    setPhase('write');
+  };
+
+  useEffect(() => stopTimer, []);
+
+  return (
+    <section className="tab-section wind-section" id="viento">
       <div className="container">
-        <div className="section-heading">
-          <span className="section-number">Libros</span>
-          <h2>Lecturas para acompañarte.</h2>
+        <div className="section-heading centered">
+          <span className="section-number">Al viento</span>
+          <h2>Cuéntaselo al viento</h2>
+          <p>Escribe lo que te pesa. El viento se encarga del resto.</p>
+        </div>
+
+        <div className="wind-stage">
+          <div className="wind-layer" onAnimationEnd={onAnimationEnd} aria-hidden="true">
+            {bits.map((b) => (
+              <WindBit key={b.id} bit={b} />
+            ))}
+          </div>
+
+          <div className="wind-card">
+            {phase !== 'revealed' ? (
+              <>
+                <label className="wind-label" htmlFor="wind-text">
+                  Lo que te pesa hoy
+                </label>
+                <textarea
+                  id="wind-text"
+                  className={`wind-input ${phase === 'blowing' ? 'blowing' : ''}`}
+                  value={text}
+                  readOnly={phase === 'blowing'}
+                  maxLength={1200}
+                  rows={7}
+                  placeholder="Escríbelo con tus palabras: estrés, rabia, tristeza, cansancio… lo que sea."
+                  onChange={(e) => setText(e.target.value)}
+                />
+                <div className="wind-card-foot">
+                  <button
+                    className="wind-release"
+                    onClick={release}
+                    disabled={phase === 'blowing' || !text.trim()}
+                  >
+                    <Icon name="wind" size={18} />
+                    {phase === 'blowing' ? 'El viento lo lleva…' : 'Que se lo lleve el viento'}
+                  </button>
+                  <span className="wind-count">{text.length} / 1200</span>
+                </div>
+              </>
+            ) : (
+              <div className="wind-after">
+                <div className="wind-gift">
+                  <WindGift kind={gift} />
+                </div>
+
+                <h3 className="wind-thanks">El viento ya se lo llevó. Gracias por contarlo.</h3>
+
+                {!feeling ? (
+                  <div className="wind-ask">
+                    <p>¿Cómo te sientes ahora?</p>
+                    <div className="wind-moods">
+                      {WIND_MOODS.map((m) => (
+                        <button key={m.id} type="button" onClick={() => setFeeling(m.id)}>
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="wind-reply">
+                    <p className="wind-reply-text">
+                      {feeling === 'igual'
+                        ? 'Está bien sentirse igual. Soltar no siempre se nota al instante y no tienes que forzarlo.'
+                        : feeling === 'poco'
+                          ? 'Es un paso. A veces alivia de a poquito, y eso también cuenta.'
+                          : 'Qué bueno. Lleva lo ligero contigo el resto del día.'}
+                    </p>
+
+                    <div className="wind-next">
+                      {feeling === 'igual' ? (
+                        <>
+                          <button className="calm-button" type="button" onClick={() => setTab('paz')}>
+                            <Icon name="leaf" size={17} /> Ir a Zona de paz
+                          </button>
+                          <button
+                            className="calm-button soft"
+                            type="button"
+                            onClick={() => setTab('lineas')}
+                          >
+                            <Icon name="phone" size={17} /> Ver líneas de ayuda
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button className="calm-button" type="button" onClick={() => setTab('paz')}>
+                            <Icon name="leaf" size={17} /> Seguir en Zona de paz
+                          </button>
+                          <button
+                            className="calm-button soft"
+                            type="button"
+                            onClick={() => setTab('lineas')}
+                          >
+                            <Icon name="phone" size={17} /> Ver líneas de ayuda
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    <button className="wind-again" type="button" onClick={reset}>
+                      Escribir otra vez
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="wind-notes">
           <p>
-            Libros para relajarte y cuidar tu ánimo. Cada uno abre directamente su página: si se
-            puede leer en línea, te lleva ahí; si hay que comprarlo, te lo decimos con claridad.
+            <Icon name="lock" size={15} />
+            <span>
+              No pedimos tu nombre, tu correo ni tu ubicación. Lo que escribas solo existe en pantalla
+              mientras lo escribes: al soltarlo, desaparece.
+            </span>
+          </p>
+          <p>
+            <Icon name="heart" size={15} />
+            <span>
+              Si te cuesta sostenerlo a solas, acércate a las{' '}
+              <button className="wind-link" type="button" onClick={() => setTab('lineas')}>
+                líneas de ayuda
+              </button>
+              . También puedes escribir cuando quieras: no hay forma correcta de hacerlo.
+            </span>
           </p>
         </div>
-
-        <div className="book-grid">
-          {all.map((b) => (
-            <article className="book-card" key={b.title}>
-              <span className="book-spine">
-                <Icon name="book" size={22} />
-              </span>
-              <h3>{b.title}</h3>
-              <small>{b.author}</small>
-              <p>{b.description}</p>
-              <BookLink book={b} link={links[b.title]} />
-            </article>
-          ))}
-        </div>
-
-        <p className="prototype-note">
-          {all.length} libros para acompañarte · Enlaces obtenidos de Open Library (puede tardar unos
-          segundos en cargar).
-        </p>
       </div>
     </section>
   );
@@ -1012,19 +1234,18 @@ function PeaceTab({ phrases, setTab }) {
               className={`music-toggle ${music.playing ? 'playing' : ''}`}
               onClick={music.toggle}
               aria-pressed={music.playing}
-              aria-busy={music.loading}
             >
               <Icon name={music.playing ? 'pause' : 'music'} size={18} />
-              {music.playing ? 'Detener música' : 'Poner música tranquila'}
+              {music.playing ? 'Pausar música' : 'Poner música suave'}
             </button>
             <small className="music-note">
               {music.error
                 ? 'No se pudo generar el sonido en este dispositivo. Puedes seguir con la respiración.'
-                : !music.playing
-                ? 'Música de relajación en bucle. Nunca suena sola: tú la enciendes.'
-                : music.loading
-                ? 'Sonido suave activo · Buscando una pista de relajación en línea…'
-                : 'Sonido suave de fondo · Ajústalo al volumen que te sirva'}
+                : music.blocked
+                  ? 'Para escuchar, toca en cualquier lugar de la pantalla una vez.'
+                  : music.playing
+                    ? 'Beats lentos y tranquilizantes, sin voces · ajústalo al volumen que te sirva'
+                    : 'Beats suaves de fondo. Puedes pausarla cuando quieras.'}
             </small>
           </div>
 
@@ -1062,27 +1283,27 @@ function PeaceTab({ phrases, setTab }) {
 /* ==========================================================================
    Regálate momentos (árbol con hojas que caen)
    ========================================================================== */
-const LEAF_COLORS = ['#ffb3c9', '#ff96b8', '#ffcadc', '#ffb9a8', '#ffc9a3', '#ffdcc0'];
+const LEAF_COLORS = ['#8fbf7a', '#a3cd87', '#7cae6a', '#b9d69b', '#96c47f', '#c7dfa6'];
 
 function TreeSvg() {
   return (
     <svg className="tree-svg" viewBox="0 0 340 340" aria-hidden="true">
       <defs>
         <linearGradient id="rc-foliage-a" x1="0.2" y1="0" x2="0.5" y2="1">
-          <stop offset="0%" stopColor="#ffd6e2" />
-          <stop offset="100%" stopColor="#ff9fbe" />
+          <stop offset="0%" stopColor="#a8d48a" />
+          <stop offset="100%" stopColor="#5f9a5f" />
         </linearGradient>
         <linearGradient id="rc-foliage-b" x1="0.2" y1="0" x2="0.6" y2="1">
-          <stop offset="0%" stopColor="#ffe4ec" />
-          <stop offset="100%" stopColor="#ffb2c9" />
+          <stop offset="0%" stopColor="#c0e2a0" />
+          <stop offset="100%" stopColor="#77ae68" />
         </linearGradient>
         <linearGradient id="rc-trunk" x1="0" y1="0" x2="0.4" y2="1">
-          <stop offset="0%" stopColor="#9c7757" />
-          <stop offset="100%" stopColor="#6c4f37" />
+          <stop offset="0%" stopColor="#a37c58" />
+          <stop offset="100%" stopColor="#6b4f37" />
         </linearGradient>
         <radialGradient id="rc-glow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0%" stopColor="#ffd9e5" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#ffd9e5" stopOpacity="0" />
+          <stop offset="0%" stopColor="#d9eec4" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#d9eec4" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -1090,7 +1311,7 @@ function TreeSvg() {
       <ellipse cx="170" cy="122" rx="152" ry="134" fill="url(#rc-glow)" />
 
       {/* suelo */}
-      <ellipse cx="170" cy="320" rx="106" ry="13" fill="#ecc9d4" opacity="0.65" />
+      <ellipse cx="170" cy="320" rx="106" ry="13" fill="#cde0b4" opacity="0.75" />
 
       {/* tronco */}
       <path d="M157 322 L183 322 L176 212 L164 212 Z" fill="url(#rc-trunk)" />
@@ -1111,11 +1332,11 @@ function TreeSvg() {
         <ellipse cx="244" cy="162" rx="62" ry="50" fill="url(#rc-foliage-b)" />
         <ellipse cx="130" cy="86" rx="50" ry="42" fill="url(#rc-foliage-b)" />
         <ellipse cx="214" cy="94" rx="46" ry="38" fill="url(#rc-foliage-a)" />
-        <circle cx="126" cy="128" r="6.5" fill="#fff" opacity="0.36" />
-        <circle cx="210" cy="140" r="5" fill="#fff" opacity="0.3" />
-        <circle cx="166" cy="72" r="7" fill="#fff" opacity="0.28" />
-        <circle cx="234" cy="114" r="4" fill="#fff" opacity="0.3" />
-        <circle cx="84" cy="150" r="4.5" fill="#fff" opacity="0.28" />
+        <circle cx="126" cy="128" r="6.5" fill="#fff" opacity="0.4" />
+        <circle cx="210" cy="140" r="5" fill="#fff" opacity="0.34" />
+        <circle cx="166" cy="72" r="7" fill="#fff" opacity="0.3" />
+        <circle cx="234" cy="114" r="4" fill="#fff" opacity="0.32" />
+        <circle cx="84" cy="150" r="4.5" fill="#fff" opacity="0.3" />
       </g>
     </svg>
   );
@@ -1186,14 +1407,14 @@ function RegalateTab({ activities }) {
                     <path
                       d="M12 2C8 6 5 10 6 15c.6 3 3 5 6 7 3-2 5.4-4 6-7 1-5-2-9-6-13z"
                       fill={color}
-                      stroke="#d4738d"
+                      stroke="#4f8349"
                       strokeOpacity="0.45"
                       strokeWidth="0.9"
                     />
-                    <path d="M12 5v14" stroke="#d4738d" strokeOpacity="0.32" strokeWidth="1" />
+                    <path d="M12 5v14" stroke="#4f8349" strokeOpacity="0.32" strokeWidth="1" />
                     <path
                       d="M12 9.2l3.1-2.5M12 12.6l3.3-2.7M12 16l2.9-2.3"
-                      stroke="#d4738d"
+                      stroke="#4f8349"
                       strokeOpacity="0.24"
                       strokeWidth="0.9"
                     />
@@ -1203,7 +1424,11 @@ function RegalateTab({ activities }) {
             })}
           </div>
 
-          <div className="tree-ground" />
+          <div className="tree-ground">
+            <div className="meadow" aria-hidden="true">
+              <div className="meadow-blades" />
+            </div>
+          </div>
         </div>
 
         <p className="prototype-note">
@@ -1361,6 +1586,18 @@ export default function App() {
       .catch(() => setError(true));
   }, []);
 
+  // El título de la pestaña sigue a la sección visible; en la barra de
+  // navegación se muestra el nombre corto "Al viento" para no desarmar el menú.
+  useEffect(() => {
+    const tab = TABS.find((t) => t.id === activeTab);
+    document.title =
+      activeTab === 'viento'
+        ? 'Cuéntaselo al viento | Ruta Clara Meta'
+        : tab && activeTab !== 'inicio'
+          ? `${tab.label} | Ruta Clara Meta`
+          : 'Ruta Clara Meta | Orientación en salud mental';
+  }, [activeTab]);
+
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -1411,7 +1648,7 @@ export default function App() {
           />
         )}
         {activeTab === 'lineas' && <LinesTab lines={lines} />}
-        {activeTab === 'libros' && <BooksTab books={data?.books} />}
+        {activeTab === 'viento' && <WindTab setTab={setTab} />}
         {activeTab === 'centros' && <CentersTab centers={data?.centers} />}
         {activeTab === 'paz' && <PeaceTab phrases={phrases} setTab={setTab} />}
         {activeTab === 'regalate' && <RegalateTab activities={data?.regalate} />}

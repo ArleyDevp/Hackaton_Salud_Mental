@@ -722,10 +722,19 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
 /* ==========================================================================
    Líneas de ayuda
    ========================================================================== */
+// El filtro no depende de cómo esté redactado el campo "scope": usa un
+// indicador explícito en los datos (routes.json y crisis.js). Así no se vuelve
+// a romper si alguien cambia la etiqueta de un texto.
+const FILTROS_LINEAS = [
+  { id: 'todas', label: 'Todas' },
+  { id: 'villavicencio', label: 'En Villavicencio' }
+];
+
 function LinesTab({ lines }) {
-  const [filter, setFilter] = useState('Todas');
+  const [filter, setFilter] = useState('todas');
   const all = lines || CRISIS_LINES;
-  const filtered = filter === 'Todas' ? all : all.filter((l) => l.scope === 'Villavicencio');
+  const filtered =
+    filter === 'todas' ? all : all.filter((l) => l.enVillavicencio === true);
 
   return (
     <section className="tab-section routes-section">
@@ -740,15 +749,26 @@ function LinesTab({ lines }) {
             </p>
           </div>
           <div className="filter-control">
-            {['Todas', 'En Villavicencio'].map((f) => (
-              <button key={f} className={filter === f ? 'active' : ''} onClick={() => setFilter(f)}>
-                {f}
+            {FILTROS_LINEAS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className={filter === f.id ? 'active' : ''}
+                aria-pressed={filter === f.id}
+                onClick={() => setFilter(f.id)}
+              >
+                {f.label}
               </button>
             ))}
           </div>
         </div>
 
         <div className="routes-grid">
+          {filtered.length === 0 && (
+            <p className="prototype-note routes-empty">
+              Todavía no hay líneas disponibles con este filtro. Prueba con “Todas”.
+            </p>
+          )}
           {filtered.map((l) => (
             <article className={`route-card ${l.featured ? 'featured' : ''}`} key={l.id}>
               <div className="route-top">

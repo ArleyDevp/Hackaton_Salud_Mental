@@ -864,6 +864,21 @@ section {
   font-size: 9px;
 }
 
+/* Estado vacío del filtro de líneas: nunca queda un hueco en blanco */
+.routes-empty {
+  grid-column: 1 / -1;
+  justify-self: center;
+  max-width: 460px;
+  background: var(--white);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  color: var(--ink-soft);
+  margin: 0;
+  padding: 28px 34px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
 /* --------------------------------------------------------------------------
    Recursos
    -------------------------------------------------------------------------- */

@@ -123,6 +123,7 @@
       "eyebrow": "Departamental · 24/7",
       "description": "Canal de apoyo psicológico de la Gobernación del Meta, con operador en Villavicencio.",
       "scope": "En Villavicencio",
+      "enVillavicencio": true,
       "featured": false,
       "phones": [
         {
@@ -146,6 +147,7 @@
       "eyebrow": "Violencia de género · 24/7",
       "description": "Orientación psicológica y jurídica en crisis por violencia de género.",
       "scope": "En Villavicencio",
+      "enVillavicencio": true,
       "featured": false,
       "phones": [
         {
@@ -168,6 +170,7 @@
       "eyebrow": "Nacional · 24/7",
       "description": "Para activar ambulancia o Policía Metropolitana de Villavicencio.",
       "scope": "Nacional",
+      "enVillavicencio": false,
       "featured": false,
       "phones": [
         {

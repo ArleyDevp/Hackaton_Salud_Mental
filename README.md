@@ -111,6 +111,11 @@ npm run dev          # frontend en :5173 (proxied a /api -> :3000)
 | Ruta | Descripción |
 |---|---|
 | `GET /api/routes` | Todo el contenido (líneas, centros, frases, momentos). |
+
+Cada línea de `lines` incluye `enVillavicencio: true|false`, que es lo que usa el
+filtro “En Villavicencio”. El mismo campo existe en `client/src/crisis.js`, así que
+el filtro da el mismo resultado con el servidor caído (la lista local de crisis se
+usa a propósito para que la ayuda nunca dependa de la red).
 | `GET /api/health` | Estado del servidor. |
 
 **Música de la Zona de paz.** Es **automática**: al entrar a la pestaña arranca una secuencia de

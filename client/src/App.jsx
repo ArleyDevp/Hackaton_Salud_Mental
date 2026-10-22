@@ -785,15 +785,26 @@ function LinesTab({ lines }) {
             </p>
           </div>
           <div className="filter-control">
-            {['Todas', 'En Villavicencio'].map((f) => (
-              <button key={f} className={filter === f ? 'active' : ''} onClick={() => setFilter(f)}>
-                {f}
+            {FILTROS_LINEAS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className={filter === f.id ? 'active' : ''}
+                aria-pressed={filter === f.id}
+                onClick={() => setFilter(f.id)}
+              >
+                {f.label}
               </button>
             ))}
           </div>
         </div>
 
         <div className="routes-grid">
+          {filtered.length === 0 && (
+            <p className="prototype-note routes-empty">
+              Todavía no hay líneas disponibles con este filtro. Prueba con “Todas”.
+            </p>
+          )}
           {filtered.map((l) => (
             <article className={`route-card ${l.featured ? 'featured' : ''}`} key={l.id}>
               <div className="route-top">

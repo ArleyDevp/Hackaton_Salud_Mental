@@ -2534,6 +2534,13 @@ footer {
   --tree-leaf-light: #bee09a;
   --tree-leaf-vein: #3f7048;
 
+  /* --- pasto de la colina --- */
+  --grass-base: #5e9e62;
+  --grass-tip: #bee09a;
+  --grass-flower: #fffdf4;
+  --grass-flower-core: #f4cf6f;
+  --grass-dew: #f4fbf1;
+
   position: relative;
   height: 560px;
   margin-top: 40px;
@@ -2618,7 +2625,8 @@ footer {
 @media (prefers-reduced-motion: reduce) {
 
   .tree-canopy,
-  .tree-cluster-group {
+  .tree-cluster-group,
+  .grass-tuft {
     animation: none;
   }
 }
@@ -2708,22 +2716,63 @@ footer {
   border-radius: 40% 40% 0 0 / 22px 22px 0 0;
 }
 
-/* Bordes de pasto */
-.meadow-blades {
+/* Pasto de la colina: briznas rellenas en cuatro planos de profundidad.
+   Las matitas siguen la curva del borde superior de .meadow. */
+.tree-grass {
   position: absolute;
-  top: -14px;
-  left: -2%;
-  right: -2%;
-  height: 18px;
-  background:
-    repeating-linear-gradient(72deg,
-      transparent 0 7px,
-      #96c47f 7px 9px,
-      transparent 9px 15px),
-    repeating-linear-gradient(-72deg,
-      transparent 0 9px,
-      #8cba73 9px 11px,
-      transparent 11px 19px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  width: 100%;
+  height: 130px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.grass-tuft {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation-name: grass-sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Planos: lejano claro y pequeño; el primero, más alto y oscuro. */
+.grass-tuft--far {
+  --grass-sway: 2deg;
+  opacity: 0.5;
+}
+
+.grass-tuft--midA {
+  --grass-sway: 2.6deg;
+  opacity: 0.78;
+}
+
+.grass-tuft--midB {
+  --grass-sway: 3.2deg;
+  opacity: 0.9;
+}
+
+.grass-tuft--front {
+  --grass-sway: 3.8deg;
+  opacity: 1;
+}
+
+@keyframes grass-sway {
+
+  0%,
+  100% {
+    transform: rotate(calc(-1 * var(--grass-sway, 3deg)));
+  }
+
+  50% {
+    transform: rotate(var(--grass-sway, 3deg));
+  }
+}
+
+.grass-flowers {
+  opacity: 0.96;
 }
 
 /* La hoja se desprende de la copa, baja y se posa en el pasto:

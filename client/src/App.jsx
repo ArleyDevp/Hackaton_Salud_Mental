@@ -1861,6 +1861,129 @@ const TREE_BASE_TUFTS = (() => {
   });
 })();
 
+/* --- Pasto de la colina ---------------------------------------------------
+   Briznas rellenas (base de 2 a 4 px que se afina hasta la punta) agrupadas
+   en matitas de 3 a 6. Todo se calcula con semilla fija: la composición es
+   idéntica en cada carga. Las bases se apoyan en la misma curva que el borde
+   de la colina (.meadow: 84 px de alto y 22 px de radio arriba). */
+
+const GRASS_VIEW_W = 1000;
+const GRASS_VIEW_H = 130;
+
+/* Altura del borde de la colina, en unidades del SVG (y crece hacia abajo). */
+function grassHillY(u) {
+  const d = Math.abs(u - 0.5);
+  const t = Math.min(1, Math.max(0, (d - 0.1) / 0.4));
+  return 68 - 22 * Math.sqrt(1 - t * t);
+}
+
+/* Seis briznas reutilizables. La base queda en (0, 0) y la punta arriba. */
+const GRASS_BLADES = [
+  { id: 'a', tip: [0, -40], d: 'M-1.5 0C-1.3-9-1-21 0-40 1.1-21 1.4-9 1.5 0Z' },
+  { id: 'b', tip: [4.2, -38], d: 'M-1.4 0C-0.7-10 1.4-24 4.2-38 3.6-24 2.5-10 1.4 0Z' },
+  { id: 'c', tip: [-4.2, -38], d: 'M-1.4 0C-2.5-10-3.6-24-4.2-38-1.4-24 0.7-10 1.4 0Z' },
+  { id: 'd', tip: [0.4, -40], d: 'M-1.1 0C-0.95-10-0.7-24 0.4-40 1.2-24 1.35-10 1.1 0Z' },
+  { id: 'e', tip: [3.8, -38], d: 'M-1.4 0C-1.8-12 1.2-22 3.8-38 3.2-22 1.4-11 1.4 0Z' },
+  { id: 'f', tip: [0.3, -39], d: 'M-1.9 0C-1.5-9-1.2-22 0.3-39 1.6-22 1.9-10 1.9 0Z' }
+];
+
+/* Cuatro planos: lejano (bajo y translúcido), dos medios y primer plano. */
+const GRASS_LAYERS = [
+  { key: 'far', seed: 1181, count: 9, heights: [10, 17], offset: -2.5, duration: [4.6, 5.8], tilt: 14 },
+  { key: 'midA', seed: 1297, count: 10, heights: [14, 24], offset: 0, duration: [3.9, 5.2], tilt: 16 },
+  { key: 'midB', seed: 1409, count: 10, heights: [19, 30], offset: 2.5, duration: [3.5, 4.9], tilt: 17 },
+  { key: 'front', seed: 1523, count: 9, heights: [26, 40], offset: 5.5, duration: [3.2, 4.6], tilt: 18 }
+];
+
+const GRASS_TUFTS = (() => {
+  const tufts = [];
+  const tips = [];
+
+  GRASS_LAYERS.forEach((layer) => {
+    const rnd = treeRand(layer.seed);
+    const step = GRASS_VIEW_W / (layer.count - 1);
+
+    for (let i = 0; i < layer.count; i += 1) {
+      const x = Math.min(996, Math.max(4, i * step + (rnd() - 0.5) * 30));
+      const y = grassHillY(x / GRASS_VIEW_W) + layer.offset + (rnd() - 0.5) * 2;
+      const bladeCount = 3 + Math.floor(rnd() * 4);
+      const blades = [];
+
+      for (let b = 0; b < bladeCount; b += 1) {
+        const shape = GRASS_BLADES[Math.floor(rnd() * GRASS_BLADES.length)];
+        const height = layer.heights[0] + rnd() * (layer.heights[1] - layer.heights[0]);
+        const tilt = (rnd() - 0.5) * 2 * layer.tilt;
+        const sx = 0.92 + rnd() * 0.13;
+        const sy = height / 40;
+        const bx = x + (rnd() - 0.5) * 3.4;
+        const rad = (tilt * Math.PI) / 180;
+        const tx = shape.tip[0] * sx;
+        const ty = shape.tip[1] * sy;
+
+        const blade = {
+          key: `${layer.key}-${i}-${b}`,
+          shape: shape.id,
+          x: bx,
+          y,
+          tilt,
+          sx,
+          sy,
+          tipX: bx + tx * Math.cos(rad) - ty * Math.sin(rad),
+          tipY: y + tx * Math.sin(rad) + ty * Math.cos(rad)
+        };
+
+        blades.push(blade);
+        tips.push(blade);
+      }
+
+      tufts.push({
+        id: `${layer.key}-${i}`,
+        layer: layer.key,
+        blades,
+        dew: [],
+        duration: Number((layer.duration[0] + rnd() * (layer.duration[1] - layer.duration[0])).toFixed(2)),
+        delay: Number((-(tufts.length * 0.37 + rnd() * 0.18)).toFixed(2))
+      });
+    }
+  });
+
+  /* Rocío: diez gotitas sobre puntas de briznas. Van dentro de la matita
+     para que se balanceen con ella. */
+  const dewRnd = treeRand(9011);
+  const chosen = new Set();
+
+  while (chosen.size < 10) {
+    chosen.add(Math.floor(dewRnd() * tips.length));
+  }
+
+  chosen.forEach((index) => {
+    const blade = tips[index];
+    const owner = tufts.find((tuft) => tuft.blades.includes(blade));
+    owner.dew.push({
+      x: blade.tipX,
+      y: blade.tipY,
+      r: 0.9 + dewRnd() * 0.5,
+      opacity: 0.65 + dewRnd() * 0.3
+    });
+  });
+
+  return tufts;
+})();
+
+/* Florecitas diminutas repartidas por la base del pasto. */
+const GRASS_FLOWERS = (() => {
+  const rnd = treeRand(7723);
+  return Array.from({ length: 10 }, (_, i) => {
+    const x = 30 + (i / 9) * 940 + (rnd() - 0.5) * 34;
+    return {
+      x,
+      y: grassHillY(x / GRASS_VIEW_W) + 1.5 + rnd() * 5,
+      scale: 0.75 + rnd() * 0.4,
+      rot: (rnd() - 0.5) * 22
+    };
+  });
+})();
+
 function TreeCluster({ cluster }) {
   const fills = TREE_CLUSTER_FILL[cluster.depth];
   return (
@@ -2177,6 +2300,82 @@ function TreeSvg() {
   );
 }
 
+/* Pasto a todo el ancho, sobre la curva de la colina (no toca el árbol). */
+function GrassSvg() {
+  return (
+    <svg
+      className="tree-grass"
+      viewBox={`0 0 ${GRASS_VIEW_W} ${GRASS_VIEW_H}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="grass-fill" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stopColor="var(--grass-base, #5e9e62)" />
+          <stop offset="100%" stopColor="var(--grass-tip, #bee09a)" />
+        </linearGradient>
+
+        {GRASS_BLADES.map((blade) => (
+          <symbol key={blade.id} id={`grass-blade-${blade.id}`} overflow="visible">
+            <path d={blade.d} fill="url(#grass-fill)" />
+          </symbol>
+        ))}
+
+        <symbol id="grass-flower" overflow="visible">
+          <g fill="var(--grass-flower, #fffdf4)">
+            <circle cx="0" cy="-2.7" r="1.5" />
+            <circle cx="2.57" cy="-0.83" r="1.5" />
+            <circle cx="1.59" cy="2.18" r="1.5" />
+            <circle cx="-1.59" cy="2.18" r="1.5" />
+            <circle cx="-2.57" cy="-0.83" r="1.5" />
+          </g>
+          <circle cx="0" cy="0" r="1.5" fill="var(--grass-flower-core, #f4cf6f)" />
+        </symbol>
+      </defs>
+
+      {GRASS_TUFTS.map((tuft) => (
+        <g
+          key={tuft.id}
+          className={`grass-tuft grass-tuft--${tuft.layer}`}
+          style={{
+            animationDuration: `${tuft.duration}s`,
+            animationDelay: `${tuft.delay}s`
+          }}
+        >
+          {tuft.blades.map((blade) => (
+            <use
+              key={blade.key}
+              href={`#grass-blade-${blade.shape}`}
+              transform={`translate(${blade.x.toFixed(2)} ${blade.y.toFixed(2)}) rotate(${blade.tilt.toFixed(1)}) scale(${blade.sx.toFixed(2)} ${blade.sy.toFixed(3)})`}
+            />
+          ))}
+          {tuft.dew.map((drop, i) => (
+            <circle
+              key={`dew-${tuft.id}-${i}`}
+              cx={drop.x.toFixed(2)}
+              cy={(drop.y + 0.5).toFixed(2)}
+              r={drop.r.toFixed(2)}
+              fill="var(--grass-dew, #f4fbf1)"
+              opacity={drop.opacity.toFixed(2)}
+            />
+          ))}
+        </g>
+      ))}
+
+      <g className="grass-flowers">
+        {GRASS_FLOWERS.map((flower, i) => (
+          <use
+            key={`grass-flower-${i}`}
+            href="#grass-flower"
+            transform={`translate(${flower.x.toFixed(1)} ${flower.y.toFixed(1)}) rotate(${flower.rot.toFixed(0)}) scale(${flower.scale.toFixed(2)})`}
+          />
+        ))}
+      </g>
+    </svg>
+  );
+}
+
 function RegalateTab({ activities }) {
   const [open, setOpen] = useState(null);
   const leaves = activities || [];
@@ -2275,10 +2474,10 @@ function RegalateTab({ activities }) {
           </div>
 
           <div className="tree-ground">
-            <div className="meadow" aria-hidden="true">
-              <div className="meadow-blades" />
-            </div>
+            <div className="meadow" aria-hidden="true" />
           </div>
+
+          <GrassSvg />
         </div>
 
         <p className="prototype-note">

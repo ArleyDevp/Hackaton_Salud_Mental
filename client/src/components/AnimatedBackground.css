@@ -1375,6 +1375,7 @@ html.amb-paused .center-item .center-pin::before,
 html.amb-paused .center-item .center-pin::after,
 html.amb-paused .centers-halo,
 html.amb-paused .resource-drift__item,
+html.amb-paused .grass-tuft,
 html.amb-paused .tree-sky * {
   animation-play-state: paused !important;
 }

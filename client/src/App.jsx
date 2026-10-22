@@ -812,12 +812,183 @@ function DrawModal({ onClose }) {
 }
 
 /* ==========================================================================
+   Talleres y espacios comunitarios
+   ========================================================================== */
+
+const FILTROS_TALLERES = [
+  { id: 'todos', label: 'Todos' },
+  { id: 'presencial', label: 'Presenciales' },
+  { id: 'virtual', label: 'Virtuales' }
+];
+
+function WorkshopsModal({ talleres, onClose }) {
+  const closeRef = useRef(null);
+  const [filtro, setFiltro] = useState('todos');
+  const [abierto, setAbierto] = useState(talleres[0]?.id ?? null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
+  const visibles = filtro === 'todos' ? talleres : talleres.filter((t) => t.tipo === filtro);
+  const cuenta = (id) =>
+    id === 'todos' ? talleres.length : talleres.filter((t) => t.tipo === id).length;
+
+  const cambiarFiltro = (id) => {
+    const lista = id === 'todos' ? talleres : talleres.filter((t) => t.tipo === id);
+    setFiltro(id);
+    // Si el taller abierto deja de estar visible, abrimos el primero del filtro.
+    if (!lista.some((t) => t.id === abierto)) setAbierto(lista[0]?.id ?? null);
+  };
+
+  const contenido = (
+    <div className="crisis-overlay" onClick={onClose}>
+      <div
+        className="crisis-panel workshop-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="workshop-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className="crisis-close" ref={closeRef} onClick={onClose} aria-label="Cerrar">
+          <Icon name="close" size={18} />
+        </button>
+
+        <span className="crisis-kicker workshop-kicker">Talleres y espacios comunitarios</span>
+        <h2 id="workshop-title">Actividades para estar con otras personas.</h2>
+        <p className="crisis-lead">
+          Espacios para compartir con otras personas, presenciales y virtuales. Los datos son de
+          ejemplo del prototipo: confirma siempre con la organización antes de asistir.
+        </p>
+
+        <div className="workshop-toolbar">
+          <div className="workshop-filters" role="group" aria-label="Filtrar por modalidad">
+            {FILTROS_TALLERES.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className="workshop-filter"
+                onClick={() => cambiarFiltro(f.id)}
+                aria-pressed={filtro === f.id}
+              >
+                {f.label}
+                <span>{cuenta(f.id)}</span>
+              </button>
+            ))}
+          </div>
+          <p className="workshop-count" role="status" aria-live="polite">
+            {visibles.length} de {talleres.length} talleres
+          </p>
+        </div>
+
+        {visibles.length === 0 ? (
+          <p className="workshop-empty">No hay talleres de ese tipo por ahora.</p>
+        ) : (
+          <ul className="workshop-list">
+            {visibles.map((t, i) => {
+              const abiertoAhora = abierto === t.id;
+
+              return (
+                <li
+                  className={`workshop-item ${abiertoAhora ? 'open' : ''}`}
+                  key={t.id}
+                  style={{ '--i': i }}
+                >
+                  <button
+                    type="button"
+                    className="workshop-toggle"
+                    onClick={() => setAbierto(abiertoAhora ? null : t.id)}
+                    aria-expanded={abiertoAhora}
+                    aria-controls={`taller-${t.id}`}
+                  >
+                    <span className="workshop-toggle-copy">
+                      <strong>{t.actividad}</strong>
+                      <small>
+                        {t.fecha} · {t.horario}
+                      </small>
+                    </span>
+                    <span className={`workshop-type ${t.tipo === 'virtual' ? 'virtual' : ''}`}>
+                      {t.tipo === 'virtual' ? 'Virtual' : 'Presencial'}
+                    </span>
+                    <span className="workshop-chevron" aria-hidden="true">
+                      <Icon name="arrow" size={13} />
+                    </span>
+                  </button>
+
+                  <div className="workshop-body" id={`taller-${t.id}`} aria-hidden={!abiertoAhora}>
+                    <div className="workshop-body-inner">
+                      <dl className="workshop-meta">
+                        <div>
+                          <dt>Día y fecha</dt>
+                          <dd>{t.fecha}</dd>
+                        </div>
+                        <div>
+                          <dt>Horario</dt>
+                          <dd>{t.horario}</dd>
+                        </div>
+                        <div>
+                          <dt>Duración</dt>
+                          <dd>{t.duracion}</dd>
+                        </div>
+                        <div>
+                          <dt>Lugar</dt>
+                          <dd>{t.lugar}</dd>
+                        </div>
+                        <div>
+                          <dt>Modalidad</dt>
+                          <dd>{t.modalidad}</dd>
+                        </div>
+                        <div>
+                          <dt>Organiza</dt>
+                          <dd>{t.organiza}</dd>
+                        </div>
+                        <div>
+                          <dt>Dirigido a</dt>
+                          <dd>{t.publico}</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        <div className="calm-actions workshop-actions">
+          <button className="calm-button" onClick={onClose}>
+            <Icon name="check" size={16} />
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mismo motivo que el modal de dibujo: dentro de <main> quedaria debajo
+  // del boton flotante de crisis.
+  return createPortal(contenido, document.body);
+}
+
+/* ==========================================================================
    Inicio
    ========================================================================== */
 function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
   const [selected, setSelected] = useState(null);
   const [drawOpen, setDrawOpen] = useState(false);
+  const [talleresOpen, setTalleresOpen] = useState(false);
   const needs = data?.needs || [];
+  const talleres = data?.talleres || [];
   const phrase = useRotatingPhrase(phrases);
 
   const choose = (need) => setSelected(need.id);
@@ -911,6 +1082,25 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
                 </span>
               </button>
             ))}
+          </div>
+
+          <div className="need-extra">
+            <button
+              className="need-card"
+              onClick={() => setTalleresOpen(true)}
+              aria-haspopup="dialog"
+            >
+              <span className="need-icon">
+                <Icon name="users" size={22} />
+              </span>
+              <span>
+                <strong>Talleres y espacios comunitarios</strong>
+                <small>Talleres, caminatas y encuentros</small>
+              </span>
+              <span className="choice-mark">
+                <Icon name="arrow" size={13} />
+              </span>
+            </button>
           </div>
 
           {selected && (
@@ -1032,6 +1222,9 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
       )}
 
       {drawOpen && <DrawModal onClose={() => setDrawOpen(false)} />}
+      {talleresOpen && (
+        <WorkshopsModal talleres={talleres} onClose={() => setTalleresOpen(false)} />
+      )}
     </>
   );
 }

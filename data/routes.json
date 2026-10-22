@@ -253,22 +253,30 @@
   ],
   "resources": [
     {
-      "kicker": "Lectura · 5 min",
-      "title": "Una pausa para volver al presente",
-      "text": "Una guía breve para reconocer lo que sientes sin juzgarte.",
-      "icon": "book"
+      "kicker": "Escritura",
+      "title": "Cuéntaselo al viento",
+      "text": "Escribe lo que te pesa y deja que el viento se lo lleve. Aquí no queda nada.",
+      "icon": "wind",
+      "target": "viento",
+      "cta": "Explorar"
     },
     {
-      "kicker": "Guía práctica",
-      "title": "Cuidarte también cuenta",
-      "text": "Pequeños hábitos para acompañar días de mucha presión.",
-      "icon": "heart"
+      "kicker": "Actividad",
+      "title": "Calma en la rutina",
+      "text": "Un espacio rápido para desconectar la mente y volver a ti, sin metas ni exigencias.",
+      "icon": "tree",
+      "tone": "lavender",
+      "target": "regalate",
+      "cta": "Explorar"
     },
     {
-      "kicker": "Directorio local",
-      "title": "Construye tu red de apoyo",
-      "text": "Ideas sencillas para acercarte a alguien de confianza.",
-      "icon": "users"
+      "kicker": "Creatividad",
+      "title": "Dibujo libre",
+      "text": "Diez minutos, una hoja y ninguna expectativa. Deja que la mano se mueva.",
+      "icon": "pencil",
+      "tone": "sand",
+      "action": "draw",
+      "cta": "Explorar"
     }
   ],
   "closing": {

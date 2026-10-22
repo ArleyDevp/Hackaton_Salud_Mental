@@ -62,6 +62,16 @@ const Icon = ({ name, size = 20 }) => {
           <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
         </svg>
       );
+    case 'tree':
+      // Pino de dos pisos: la silueta escalonada es la que se lee como arbol
+      // a 40 px. Una copa redonda cerrada en trazo parece un globo.
+      return (
+        <svg {...common}>
+          <path d="M12 2.5 5.5 11h3.4L5 17.2h14L16.1 11h3.4L12 2.5Z" />
+          <path d="M12 17.2V21" />
+          <path d="M9.5 21h5" />
+        </svg>
+      );
     case 'check':
       return (
         <svg {...common}>
@@ -117,6 +127,13 @@ const Icon = ({ name, size = 20 }) => {
       return (
         <svg {...common}>
           <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" />
+        </svg>
+      );
+    case 'pencil':
+      return (
+        <svg {...common}>
+          <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+          <path d="M15 5l4 4" />
         </svg>
       );
     case 'music':
@@ -584,10 +601,196 @@ function SectionDivider() {
 }
 
 /* ==========================================================================
+   Dibujo libre
+   ========================================================================== */
+// Tonos pasteles de la paleta Calm UI. Se eligen visibles sobre el papel
+// crema: versiones más claras de la misma paleta se perderían de verdad.
+const DRAW_COLORS = [
+  { name: 'Azul', value: '#287787' },
+  { name: 'Celeste', value: '#8ec9dc' },
+  { name: 'Verde', value: '#8fbfa0' },
+  { name: 'Lavanda', value: '#a89ee0' },
+  { name: 'Arena', value: '#dcc79b' },
+  { name: 'Rosa', value: '#e0a3ae' },
+  { name: 'Tinta', value: '#3d5a63' }
+];
+
+function DrawModal({ onClose }) {
+  const canvasRef = useRef(null);
+  const closeRef = useRef(null);
+  const paintingRef = useRef(false);
+  const lastRef = useRef(null);
+  const usedRef = useRef(false);
+  const [color, setColor] = useState(DRAW_COLORS[0].value);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
+  // El lienzo se ajusta a su espacio y se reescala con la pantalla sin
+  // perder lo que ya se dibujo.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const fit = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const dpr = window.devicePixelRatio || 1;
+      const foto = usedRef.current ? canvas.toDataURL() : null;
+
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (foto) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
+        img.src = foto;
+      }
+    };
+
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
+
+  const punto = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  const trazo = (ctx, desde, hasta) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(desde.x, desde.y);
+    ctx.lineTo(hasta.x, hasta.y);
+    ctx.stroke();
+  };
+
+  // Pointer events: el mismo trazo sirve con mouse, dedo o lapiz.
+  const empezar = (e) => {
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    try {
+      canvas.setPointerCapture?.(e.pointerId);
+    } catch {
+      // Algunos entornos no capturan punteros sinteticos: se dibuja igual.
+    }
+    paintingRef.current = true;    usedRef.current = true;
+    const p = punto(e);
+    lastRef.current = p;
+    const ctx = canvas.getContext('2d');
+    trazo(ctx, p, { x: p.x + 0.1, y: p.y });
+  };
+
+  const mover = (e) => {
+    if (!paintingRef.current) return;
+    e.preventDefault();
+    const ctx = canvasRef.current.getContext('2d');
+    const p = punto(e);
+    trazo(ctx, lastRef.current, p);
+    lastRef.current = p;
+  };
+
+  const terminar = () => {
+    paintingRef.current = false;
+  };
+
+  const limpiar = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    usedRef.current = false;
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  return (
+    <div className="crisis-overlay" onClick={onClose}>
+      <div
+        className="crisis-panel draw-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="draw-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className="crisis-close" ref={closeRef} onClick={onClose} aria-label="Cerrar">
+          <Icon name="close" size={18} />
+        </button>
+
+        <span className="crisis-kicker">Creatividad</span>
+        <h2 id="draw-title">Dibujo libre</h2>
+        <p className="crisis-lead">
+          Diez minutos, una hoja y ninguna expectativa. Deja que la mano se mueva: aquí no hay nada
+          que dibujar bien.
+        </p>
+
+        <div className="draw-stage">
+          <canvas
+            ref={canvasRef}
+            className="draw-canvas"
+            onPointerDown={empezar}
+            onPointerMove={mover}
+            onPointerUp={terminar}
+            onPointerLeave={terminar}
+            onPointerCancel={terminar}
+            aria-label="Lienzo en blanco para dibujar"
+          />
+        </div>
+
+        <div className="draw-controls">
+          <div className="draw-swatches" role="group" aria-label="Color del pincel">
+            {DRAW_COLORS.map((c) => (
+              <button
+                key={c.value}
+                type="button"
+                className={`draw-swatch ${color === c.value ? 'is-active' : ''}`}
+                style={{ background: c.value }}
+                onClick={() => setColor(c.value)}
+                aria-label={c.name}
+                aria-pressed={color === c.value}
+                title={c.name}
+              />
+            ))}
+          </div>
+
+          <div className="draw-actions">
+            <button type="button" className="draw-clear" onClick={limpiar}>
+              Limpiar
+            </button>
+            <button type="button" className="draw-done" onClick={onClose}>
+              Listo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
    Inicio
    ========================================================================== */
 function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
   const [selected, setSelected] = useState(null);
+  const [drawOpen, setDrawOpen] = useState(false);
   const needs = data?.needs || [];
   const phrase = useRotatingPhrase(phrases);
 
@@ -712,7 +915,9 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
 
           <div className="resource-grid">
             {(data?.resources || []).map((r) => (
-              <article className={`resource-card ${r.icon === 'heart' ? 'lavender' : r.icon === 'users' ? 'sand' : ''}`} key={r.title}>
+              // El color de la tarjeta lo declara el dato (tone), no el icono:
+              // así cada recurso puede cambiar de dibujo sin perder su fondo.
+              <article className={`resource-card ${r.tone || ''}`} key={r.title}>
                 <div className="resource-illustration">
                   <span />
                   <Icon name={r.icon} size={40} />
@@ -721,8 +926,12 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
                   <span>{r.kicker}</span>
                   <h3>{r.title}</h3>
                   <p>{r.text}</p>
-                  <button onClick={() => setTab('paz')}>
-                    Explorar recurso <Icon name="arrow" size={15} />
+                  <button
+                    onClick={() =>
+                      r.action === 'draw' ? setDrawOpen(true) : setTab(r.target || 'paz')
+                    }
+                  >
+                    {r.cta || 'Explorar recurso'} <Icon name="arrow" size={15} />
                   </button>
                 </div>
               </article>
@@ -751,6 +960,8 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
           </div>
         </section>
       )}
+
+      {drawOpen && <DrawModal onClose={() => setDrawOpen(false)} />}
     </>
   );
 }

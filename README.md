@@ -24,9 +24,9 @@ la ayuda inmediata no depende de que el servidor o la red respondan.
 ```text
 ruta-clara-meta/
 ├── package.json          # Backend (Express)
-├── server.js             # API (/api/routes, /api/books) + build de React
+├── server.js             # API (/api/routes, /api/health) + build de React
 ├── data/
-│   └── routes.json       # Fuente única (líneas, libros, centros, frases, 105 momentos…)
+│   └── routes.json       # Fuente única (líneas, centros, frases, 105 momentos…)
 └── client/
     ├── package.json      # Frontend (React + Vite)
     ├── index.html
@@ -45,7 +45,7 @@ ruta-clara-meta/
 |---|---|
 | **Inicio** | “Quiero orientarme”, la entrada “¿Qué necesitas en este momento?”, recursos de autocuidado, la tarjeta “Dar el primer paso también es avanzar” y el botón **Zona de paz** justo debajo de la frase “Haz una pausa”. |
 | **Líneas de ayuda** | Canales verificados para Villavicencio, con botón de llamar y fuente. |
-| **Libros** | Libros para la relajación, sin filtros ni categorías: **enlaces reales (Open Library)** — “Leer ahora” si se puede leer en línea, o “Toca comprarlo”. |
+| **Al viento** | **Cuéntaselo al viento**: se escribe lo que pesa y, al tocar “Que se lo lleve el viento”, el texto se deshace en pétalos y hojas que el viento arrastra por la pantalla y se transforma en una flor, una mariposa o una luz. Termina con “El viento ya se lo llevó. Gracias por contarlo.” y la pregunta “¿Cómo te sientes ahora?”. **No se pide ni se guarda nada**: lo escrito solo existe mientras se escribe. |
 | **Centros presenciales** | Mapa fijo de OpenStreetMap + centros con dirección, teléfono, horario y botón de llamar. |
 | **Zona de paz** | Solo lo esencial: respiración guiada, frase que rota sola, **música de relajación**, Anclaje 5-4-3-2-1 y “Regálate ese momento”. |
 | **Regálate momentos** | Un árbol animado cuya copa se mueve suavemente y suelta hojas; cada hoja abre una actividad de bienestar (105 en total). |
@@ -110,24 +110,22 @@ npm run dev          # frontend en :5173 (proxied a /api -> :3000)
 
 | Ruta | Descripción |
 |---|---|
-| `GET /api/routes` | Todo el contenido (líneas, libros, centros, frases, momentos). |
-| `GET /api/books?title=…&author=…` | Enlace real de un libro desde Open Library (con caché en memoria). |
+| `GET /api/routes` | Todo el contenido (líneas, centros, frases, momentos). |
 | `GET /api/health` | Estado del servidor. |
 
-**Música de la Zona de paz.** El botón arranca al instante con un sonido de ambiente generado en el
-propio navegador (no depende de la red). En segundo plano consulta **Internet Archive** (API abierta,
-sin clave) buscando pistas cuyo título sea de relajación/mindfulness; si encuentra una y puede
-reproducirla, la cambia sin cortar la calma. **Nunca suena sola**: siempre la enciende la persona, y
-se detiene al salir de la pestaña.
+**Música de la Zona de paz.** Es **automática**: al entrar a la pestaña arranca una secuencia de
+*beats* suaves y tranquilizantes **generada en el propio navegador con Web Audio** (pulso grave lento
+a 52 ppm + acorde cálido que respira + campanita muy tenue). No hay voces ni podcasts, no depende de
+la red y siempre se puede pausar. Si el navegador bloquea el sonido hasta que la persona toque la
+pantalla, se avisa con un mensaje y basta un toque para activarlo. Se detiene al salir de la pestaña.
 
 ---
 
 ## Pendiente por validar (no bloquea el prototipo)
 
-1. **Revisión de la lista de libros por psicología** (sugerido en el brief). El catálogo no incluye
-   títulos que describan métodos ni que romanticen el suicidio; conviene revisión profesional.
-2. **Confirmar los centros presenciales** con cada entidad. Los marcados como “Por confirmar” deben
+1. **Confirmar los centros presenciales** con cada entidad. Los marcados como “Por confirmar” deben
    verificarse antes del lanzamiento.
-3. **Revisar las reglas del hackathon** sobre la sección de libros.
-4. La tarjeta “Dar el primer paso” conserva el botón “Llamar gratis al 106” tal como aparece en el
+2. La tarjeta “Dar el primer paso” conserva el botón “Llamar gratis al 106” tal como aparece en el
    prototipo; si prefieres que lleve a la lista regional, es un cambio de una línea.
+3. **Cuéntaselo al viento** no envía nada al servidor: revisa que la política de privacidad del
+   hackathon coincida con “escribe aquí, no se guarda”.

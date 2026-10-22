@@ -358,7 +358,9 @@ p {
 .visual-actions {
   z-index: 2;
   position: relative;
+  margin-top: 26px;
 }
+
 
 .sun-shape {
   background: linear-gradient(145deg, #d5e9d8, #beddd3);
@@ -1323,104 +1325,361 @@ footer {
 }
 
 /* --------------------------------------------------------------------------
-   Libros
+   Cuéntaselo al viento
    -------------------------------------------------------------------------- */
-.books-section {
+.wind-section {
+  overflow: hidden;
+  background:
+    radial-gradient(110% 60% at 88% 0%, #e9f7f1 0%, transparent 62%),
+    linear-gradient(180deg, var(--blue-pale) 0%, var(--cream) 100%);
+}
+
+.wind-stage {
+  position: relative;
+  max-width: 780px;
+  margin: 40px auto 0;
+}
+
+.wind-card {
+  position: relative;
+  z-index: 2;
+  background: #fffffff2;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: var(--shadow);
+}
+
+.wind-label {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue-deep);
+  font-size: 10px;
+  font-weight: 800;
+  display: block;
+  margin-bottom: 13px;
+}
+
+.wind-input {
+  width: 100%;
+  min-height: 190px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  background: var(--pearl);
+  color: var(--ink);
+  border-radius: 20px;
+  padding: 20px;
+  font-size: 16px;
+  line-height: 1.7;
+  font-family: inherit;
+  transition:
+    opacity 0.55s ease,
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.wind-input::placeholder {
+  color: #526a71a8;
+}
+
+.wind-input:focus {
+  outline: none;
+  background: var(--white);
+  border-color: #28778759;
+  box-shadow: 0 0 0 3px #2877871a;
+}
+
+/* El texto se apaga mientras las partículas se van con el viento */
+.wind-input.blowing {
+  opacity: 0;
+}
+
+.wind-card-foot {
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  display: flex;
+}
+
+.wind-release {
+  cursor: pointer;
+  border: 0;
+  background: linear-gradient(135deg, var(--blue-deep), var(--mint-deep));
+  color: var(--white);
+  border-radius: 99px;
+  padding: 15px 26px;
+  font-size: 14px;
+  font-weight: 800;
+  gap: 10px;
+  align-items: center;
+  box-shadow: 0 14px 30px #28778733;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    opacity 0.2s;
+  display: inline-flex;
+}
+
+.wind-release:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px #28778740;
+}
+
+.wind-release:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+.wind-count {
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Capa de partículas: sobresale del recuadro para que puedan volar fuera */
+.wind-layer {
+  position: absolute;
+  inset: -80px -180px -80px -100px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.wind-bit {
+  position: absolute;
+  opacity: 0;
+  filter: drop-shadow(0 4px 8px #17313a20);
+  animation-name: wind-take;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes wind-take {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  14% {
+    transform: translate3d(-14px, 8px, 0) rotate(40deg) scale(1);
+    opacity: 1;
+  }
+  55% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(var(--dx, 320px), var(--dy, -140px), 0) rotate(var(--rot, 220deg))
+      scale(0.35);
+    opacity: 0;
+  }
+}
+
+/* Lo que el viento devuelve */
+.wind-after {
+  text-align: center;
+  padding: 4px;
+}
+
+.wind-gift {
+  place-items: center;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0%, #f2f9f4 70%, transparent 100%);
+  animation: gift-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  display: grid;
+}
+
+@keyframes gift-in {
+  from {
+    transform: scale(0.35) rotate(-14deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.gift-svg {
+  width: 124px;
+  height: 124px;
+  overflow: visible;
+}
+
+.gift-bloom {
+  transform-origin: 60px 60px;
+  animation: gift-bloom 3.6s ease-in-out infinite;
+}
+
+@keyframes gift-bloom {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(9deg) scale(1.05);
+  }
+}
+
+.gift-wing {
+  transform-origin: 60px 60px;
+}
+
+.gift-wing-left {
+  animation: wing-fold 0.5s ease-in-out infinite alternate;
+}
+
+.gift-wing-right {
+  animation: wing-fold 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes wing-fold {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0.5);
+  }
+}
+
+.gift-rays {
+  transform-origin: 60px 60px;
+  animation: rays-turn 16s linear infinite;
+}
+
+@keyframes rays-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gift-glow {
+  transform-origin: 60px 60px;
+  animation: glow-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.95;
+  }
+}
+
+.wind-thanks {
+  letter-spacing: -0.03em;
+  margin: 22px auto 0;
+  max-width: 460px;
+  font-size: clamp(21px, 2.4vw, 27px);
+  line-height: 1.3;
+}
+
+.wind-ask p {
+  color: var(--ink-soft);
+  margin: 26px 0 14px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.wind-moods {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  display: flex;
+}
+
+.wind-moods button {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  border-radius: 99px;
+  padding: 13px 22px;
+  font-size: 14px;
+  font-weight: 800;
+  transition: all 0.2s;
+}
+
+.wind-moods button:hover {
+  transform: translateY(-2px);
   background: var(--blue-pale);
+  border-color: #28778759;
+}
+
+.wind-reply-text {
+  color: var(--ink-soft);
+  margin: 24px auto 18px;
+  max-width: 460px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.wind-next {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  display: flex;
+}
+
+.wind-again {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  color: var(--blue-deep);
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+/* Aviso de privacidad y de ayuda */
+.wind-notes {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px;
+  max-width: 780px;
+  margin: 26px auto 0;
+  display: grid;
+}
+
+.wind-notes p {
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--ink-soft);
+  background: #ffffffb3;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  display: flex;
+}
+
+.wind-notes p svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--blue-deep);
+}
+
+.wind-link {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  color: var(--blue-deep);
+  padding: 0;
+  font-weight: 800;
+  text-decoration: underline;
 }
 
 .centers-section {
   background: #f4f1f9;
-}
-
-.topic-filter {
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 34px;
-  display: flex;
-}
-
-.chip {
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
-  cursor: pointer;
-  background: #ffffffb3;
-  border-radius: 99px;
-  padding: 10px 18px;
-  font-size: 12px;
-  font-weight: 700;
-  transition: all 0.2s;
-}
-
-.chip:hover {
-  background: var(--white);
-}
-
-.chip.active {
-  background: var(--blue-deep);
-  border-color: var(--blue-deep);
-  color: var(--white);
-}
-
-.book-grid {
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  display: grid;
-}
-
-.book-card {
-  border-radius: var(--radius-md);
-  background: #fffc;
-  border: 1px solid #17313a12;
-  flex-direction: column;
-  gap: 6px;
-  padding: 26px;
-  transition: all 0.2s;
-  display: flex;
-}
-
-.book-card:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-3px);
-}
-
-.book-spine {
-  background: var(--lavender);
-  color: #5d557f;
-  border-radius: 14px;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  margin-bottom: 14px;
-  display: grid;
-}
-
-.book-topic {
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--blue-deep);
-  font-size: 9px;
-  font-weight: 800;
-}
-
-.book-card h3 {
-  letter-spacing: -0.03em;
-  margin: 4px 0 0;
-  font-size: 19px;
-  line-height: 1.25;
-}
-
-.book-card small {
-  color: var(--ink-soft);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.book-card p {
-  color: var(--ink-soft);
-  margin: 8px 0 0;
-  font-size: 12px;
-  line-height: 1.65;
 }
 
 /* --------------------------------------------------------------------------
@@ -1993,50 +2252,6 @@ footer {
 }
 
 /* --------------------------------------------------------------------------
-   Enlaces de libros
-   -------------------------------------------------------------------------- */
-.book-link {
-  margin-top: auto;
-  min-height: 46px;
-  border-radius: 12px;
-  padding: 10px 16px;
-  font-size: 12px;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  transition: all 0.2s;
-}
-
-.book-link.read {
-  background: var(--blue-pale);
-  color: var(--ink);
-}
-
-.book-link.read:hover {
-  background: var(--blue);
-}
-
-.book-link.buy {
-  background: var(--mint);
-  color: var(--mint-deep);
-}
-
-.book-link.buy:hover {
-  background: #bcd8c4;
-}
-
-.book-link.search {
-  background: var(--pearl);
-  color: var(--ink-soft);
-}
-
-.book-link.search:hover {
-  background: var(--white);
-}
-
-/* --------------------------------------------------------------------------
    Regálate momentos (árbol con hojas que caen)
    -------------------------------------------------------------------------- */
 .regalate-section {
@@ -2049,9 +2264,9 @@ footer {
   margin-top: 40px;
   border-radius: var(--radius-lg);
   background:
-    radial-gradient(120% 62% at 50% 100%, #ffe9f0 0%, transparent 62%),
-    linear-gradient(180deg, #fdeff4 0%, #f6eff8 100%);
-  border: 1px solid #ffd7e3;
+    radial-gradient(120% 62% at 50% 100%, #dff0cc 0%, transparent 62%),
+    linear-gradient(180deg, #eaf5fb 0%, #e3f3d6 55%, #d3e9bf 100%);
+  border: 1px solid #cbe3b8;
   overflow: hidden;
 }
 
@@ -2098,7 +2313,7 @@ footer {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #ffb0c8;
+  background: #ffe08a;
   opacity: 0;
   animation: sparkle-pop ease-in-out infinite;
 }
@@ -2153,9 +2368,41 @@ footer {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 70px;
-  z-index: 1;
-  background: radial-gradient(ellipse at center, #ffd3e066 0%, transparent 72%);
+  height: 96px;
+  z-index: 4;
+  background: radial-gradient(ellipse at center, #bcd9a266 0%, transparent 72%);
+}
+
+/* Pradera verde bajo el arbol */
+.meadow {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 84px;
+  background: linear-gradient(180deg, #a7cf8b 0%, #8cba73 100%);
+  border-top: 2px solid #96c47f;
+  border-radius: 40% 40% 0 0 / 22px 22px 0 0;
+}
+
+/* Bordes de pasto */
+.meadow-blades {
+  position: absolute;
+  top: -14px;
+  left: -2%;
+  right: -2%;
+  height: 18px;
+  background:
+    repeating-linear-gradient(
+      72deg,
+      transparent 0 7px,
+      #96c47f 7px 9px,
+      transparent 9px 15px
+    ),
+    repeating-linear-gradient(
+      -72deg,
+      transparent 0 9px,
+      #8cba73 9px 11px,
+      transparent 11px 19px
+    );
 }
 
 /* La hoja se desprende de la copa, gira y flota hacia abajo */
@@ -2339,8 +2586,20 @@ footer {
     gap: 25px;
   }
 
-  .book-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .wind-card {
+    padding: 24px;
+  }
+
+  .wind-layer {
+    inset: -50px -90px -50px -50px;
+  }
+
+  /* Las opciones se apilan para no quedar debajo del botón de crisis */
+  .wind-moods,
+  .wind-next {
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
   }
 
   .centers-grid,
@@ -2546,8 +2805,31 @@ footer {
     justify-content: center;
   }
 
-  .book-grid {
-    grid-template-columns: 1fr;
+  .wind-card {
+    padding: 20px;
+  }
+
+  .wind-layer {
+    inset: -30px -40px -30px -30px;
+  }
+
+  .wind-input {
+    min-height: 150px;
+    font-size: 15px;
+  }
+
+  .wind-card-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .wind-release {
+    justify-content: center;
+  }
+
+  .wind-count {
+    text-align: center;
   }
 
   .tab {
@@ -2614,5 +2896,19 @@ footer {
 
   .tree-sparkles {
     display: none;
+  }
+
+  /* Cuéntaselo al viento: sin vuelo de partículas, solo el resultado */
+  .wind-bit {
+    animation: none;
+    opacity: 0;
+  }
+
+  .wind-gift,
+  .gift-bloom,
+  .gift-wing,
+  .gift-rays,
+  .gift-glow {
+    animation: none;
   }
 }

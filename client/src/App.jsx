@@ -554,6 +554,36 @@ function CrisisModal({ lines, onClose }) {
 }
 
 /* ==========================================================================
+   Separador entre secciones
+   Un pequeño brote con dos hojas —el motivo que ya usa toda la app— y dos
+   líneas que se desvanecen hacia los lados. Marca el cambio de sección
+   sin cortar la lectura ni añadir ruido.
+   ========================================================================== */
+function SectionDivider() {
+  return (
+    <div className="section-divider" aria-hidden="true">
+      <svg
+        className="section-divider-sprig"
+        viewBox="0 0 48 28"
+        width="30"
+        height="17.5"
+        focusable="false"
+      >
+        <path
+          d="M24 26.5C24 21.5 24 16.5 24 12"
+          fill="none"
+          stroke="#7cae6a"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+        <path d="M24 17.5C16 17.5 10 13.5 10 6.5C18 6.5 24 10.5 24 17.5Z" fill="#a3cd87" />
+        <path d="M24 12.5C30 12.5 35 9 35 4C29 4 24 7.5 24 12.5Z" fill="#b9d69b" />
+      </svg>
+    </div>
+  );
+}
+
+/* ==========================================================================
    Inicio
    ========================================================================== */
 function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
@@ -619,6 +649,8 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
         </div>
       </section>
 
+      <SectionDivider />
+
       <section className="orientation-section" id="orientate">
         <div className="container">
           <div className="section-heading centered">
@@ -666,6 +698,8 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
         </div>
       </section>
 
+      <SectionDivider />
+
       <section className="resources-section" id="recursos">
         <div className="container">
           <div className="section-heading centered">
@@ -696,6 +730,8 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
           </div>
         </div>
       </section>
+
+      <SectionDivider />
 
       {closing && (
         <section className="closing-section">

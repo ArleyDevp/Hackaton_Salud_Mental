@@ -457,6 +457,44 @@ section {
   overflow: hidden;
 }
 
+/* --------------------------------------------------------------------------
+   Separadores entre secciones
+   Un brote con dos hojas y dos líneas abiertas hacia los extremos. Vive
+   sobre la costura, así que no altera el ritmo vertical ni añade cajas.
+   -------------------------------------------------------------------------- */
+.section-divider {
+  width: min(1180px, 100% - 48px);
+  height: 0;
+  margin: 0 auto;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  display: flex;
+  position: relative;
+}
+
+/* Las líneas que flanquean el brote, abiertas hacia los extremos. */
+.section-divider:before,
+.section-divider:after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #17313a26);
+}
+
+.section-divider:after {
+  background: linear-gradient(to left, transparent, #17313a26);
+}
+
+/* El brote: hoja grande a la izquierda, hoja nueva a la derecha. */
+.section-divider-sprig {
+  flex: none;
+  opacity: 0.9;
+}
+
 .section-heading {
   max-width: 580px;
 }

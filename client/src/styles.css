@@ -253,7 +253,7 @@ p {
   display: flex;
 }
 
-.eyebrow > span:first-child {
+.eyebrow>span:first-child {
   background: var(--blue-deep);
   width: 28px;
   height: 1px;
@@ -434,7 +434,7 @@ section {
 .orientation-section {
   position: relative;
   background-color: #ffffff;
-  background-image: 
+  background-image:
     radial-gradient(circle, rgba(23, 49, 58, 0.17) 1.5px, transparent 1.5px),
     radial-gradient(circle at 8% 88%, rgba(198, 238, 222, 0.82) 0%, rgba(215, 246, 235, 0.38) 42%, transparent 68%);
   background-size: 32px 32px, 100% 100%;
@@ -447,7 +447,7 @@ section {
 .resources-section {
   position: relative;
   background-color: #ffffff;
-  background-image: 
+  background-image:
     radial-gradient(circle, rgba(23, 49, 58, 0.17) 1.5px, transparent 1.5px),
     radial-gradient(circle at 92% 75%, rgba(222, 218, 240, 0.65) 0%, rgba(235, 232, 248, 0.3) 42%, transparent 68%);
   background-size: 32px 32px, 100% 100%;
@@ -455,6 +455,44 @@ section {
   background-position: center center, center center;
   padding: 105px 0 115px;
   overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Separadores entre secciones
+   Un brote con dos hojas y dos líneas abiertas hacia los extremos. Vive
+   sobre la costura, así que no altera el ritmo vertical ni añade cajas.
+   -------------------------------------------------------------------------- */
+.section-divider {
+  width: min(1180px, 100% - 48px);
+  height: 0;
+  margin: 0 auto;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  display: flex;
+  position: relative;
+}
+
+/* Las líneas que flanquean el brote, abiertas hacia los extremos. */
+.section-divider:before,
+.section-divider:after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #17313a26);
+}
+
+.section-divider:after {
+  background: linear-gradient(to left, transparent, #17313a26);
+}
+
+/* El brote: hoja grande a la izquierda, hoja nueva a la derecha. */
+.section-divider-sprig {
+  flex: none;
+  opacity: 0.9;
 }
 
 .section-heading {
@@ -496,7 +534,7 @@ section {
 }
 
 .section-heading p,
-.activities-intro > p {
+.activities-intro>p {
   color: var(--ink-soft);
   margin: 19px 0 0;
   font-size: 15px;
@@ -578,7 +616,7 @@ section {
   background: #f3d9de;
 }
 
-.need-card > span:nth-child(2) {
+.need-card>span:nth-child(2) {
   gap: 5px;
   display: grid;
 }
@@ -636,7 +674,7 @@ section {
   animation: 0.5s fade-in;
 }
 
-.orientation-result > div {
+.orientation-result>div {
   color: var(--ink-soft);
   align-items: center;
   gap: 10px;
@@ -784,7 +822,7 @@ section {
   font-size: 25px;
 }
 
-.route-card > p {
+.route-card>p {
   color: var(--ink-soft);
   min-height: 60px;
   margin: 0 0 24px;
@@ -792,7 +830,7 @@ section {
   line-height: 1.65;
 }
 
-.featured > p {
+.featured>p {
   color: #ffffffa6;
 }
 
@@ -944,7 +982,7 @@ section {
   padding: 25px;
 }
 
-.resource-copy > span {
+.resource-copy>span {
   color: var(--blue-deep);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1176,7 +1214,7 @@ footer {
   display: flex;
 }
 
-.footer-brand > div {
+.footer-brand>div {
   display: grid;
 }
 
@@ -1194,7 +1232,7 @@ footer {
   font-weight: 800;
 }
 
-.footer-inner > p {
+.footer-inner>p {
   color: var(--ink-soft);
   font-size: 10px;
 }
@@ -1260,7 +1298,7 @@ footer {
   border-color: #a43448;
 }
 
-.emergency-fab > span:first-child {
+.emergency-fab>span:first-child {
   background: #f3d9de;
   width: 38px;
   height: 38px;
@@ -1270,7 +1308,7 @@ footer {
   display: grid;
 }
 
-.emergency-fab > span:last-child {
+.emergency-fab>span:last-child {
   display: grid;
 }
 
@@ -1406,6 +1444,7 @@ footer {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -1554,16 +1593,18 @@ footer {
     transform: translate3d(0, 0, 0) rotate(0deg) scale(0.5);
     opacity: 0;
   }
+
   14% {
     transform: translate3d(-14px, 8px, 0) rotate(40deg) scale(1);
     opacity: 1;
   }
+
   55% {
     opacity: 0.95;
   }
+
   100% {
-    transform: translate3d(var(--dx, 320px), var(--dy, -140px), 0) rotate(var(--rot, 220deg))
-      scale(0.35);
+    transform: translate3d(var(--dx, 320px), var(--dy, -140px), 0) rotate(var(--rot, 220deg)) scale(0.35);
     opacity: 0;
   }
 }
@@ -1590,6 +1631,7 @@ footer {
     transform: scale(0.35) rotate(-14deg);
     opacity: 0;
   }
+
   to {
     transform: scale(1) rotate(0deg);
     opacity: 1;
@@ -1608,10 +1650,12 @@ footer {
 }
 
 @keyframes gift-bloom {
+
   0%,
   100% {
     transform: rotate(0deg) scale(1);
   }
+
   50% {
     transform: rotate(9deg) scale(1.05);
   }
@@ -1633,6 +1677,7 @@ footer {
   from {
     transform: scaleX(1);
   }
+
   to {
     transform: scaleX(0.5);
   }
@@ -1655,11 +1700,13 @@ footer {
 }
 
 @keyframes glow-breathe {
+
   0%,
   100% {
     transform: scale(1);
     opacity: 0.5;
   }
+
   50% {
     transform: scale(1.3);
     opacity: 0.95;
@@ -1813,7 +1860,7 @@ footer {
   box-shadow: 0 10px 26px #2877871a;
 }
 
-.center-item > span:last-child {
+.center-item>span:last-child {
   gap: 4px;
   display: grid;
 }
@@ -2001,14 +2048,17 @@ footer {
 }
 
 @keyframes breathe {
+
   0%,
   to {
     transform: scale(0.7);
   }
+
   25%,
   50% {
     transform: scale(1.25);
   }
+
   75% {
     transform: scale(0.7);
   }
@@ -2018,17 +2068,19 @@ footer {
   0% {
     opacity: 0;
   }
+
   3%,
   22% {
     opacity: 1;
   }
+
   25%,
   to {
     opacity: 0;
   }
 }
 
-.peace-section + .activities-section {
+.peace-section+.activities-section {
   background: #f3eee4;
 }
 
@@ -2318,6 +2370,116 @@ footer {
 }
 
 /* --------------------------------------------------------------------------
+   Dibujo libre (lienzo dentro del modal)
+   -------------------------------------------------------------------------- */
+.draw-panel {
+  width: min(720px, 100%);
+  padding: 30px 30px 26px;
+}
+
+.draw-panel .crisis-lead {
+  margin-bottom: 18px;
+}
+
+/* El papel: blanco roto, con el borde suave de la plataforma. */
+.draw-stage {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 6px #faf8f2;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+
+.draw-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  /* Sin esto el dedo arrastra la pagina en vez de dibujar. */
+  touch-action: none;
+}
+
+.draw-controls {
+  margin-top: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.draw-swatches {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.draw-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #17313a1f;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.draw-swatch:hover {
+  transform: scale(1.08);
+}
+
+.draw-swatch.is-active {
+  box-shadow: 0 0 0 3px var(--cream), 0 0 0 5px var(--blue-deep);
+}
+
+.draw-actions {
+  display: flex;
+  gap: 9px;
+}
+
+.draw-clear,
+.draw-done {
+  cursor: pointer;
+  border-radius: 99px;
+  padding: 10px 20px;
+  font-size: 11px;
+  font-weight: 800;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+}
+
+.draw-clear:hover {
+  background: var(--blue-pale);
+}
+
+.draw-done {
+  background: var(--blue-deep);
+  border-color: var(--blue-deep);
+  color: var(--white);
+}
+
+.draw-done:hover {
+  background: #22697a;
+}
+
+@media (max-width: 560px) {
+  .draw-panel {
+    padding: 26px 20px 20px;
+  }
+
+  .draw-controls {
+    justify-content: center;
+  }
+
+  .draw-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* --------------------------------------------------------------------------
    Zona de paz centrada
    -------------------------------------------------------------------------- */
 .peace-centered {
@@ -2384,10 +2546,12 @@ footer {
 }
 
 @keyframes foliage-sway {
+
   0%,
   100% {
     transform: rotate(-1.5deg) translateX(-3px);
   }
+
   50% {
     transform: rotate(1.5deg) translateX(3px);
   }
@@ -2412,11 +2576,13 @@ footer {
 }
 
 @keyframes sparkle-pop {
+
   0%,
   100% {
     opacity: 0;
     transform: scale(0.6);
   }
+
   50% {
     opacity: 0.5;
     transform: scale(1);
@@ -2484,18 +2650,14 @@ footer {
   right: -2%;
   height: 18px;
   background:
-    repeating-linear-gradient(
-      72deg,
+    repeating-linear-gradient(72deg,
       transparent 0 7px,
       #96c47f 7px 9px,
-      transparent 9px 15px
-    ),
-    repeating-linear-gradient(
-      -72deg,
+      transparent 9px 15px),
+    repeating-linear-gradient(-72deg,
       transparent 0 9px,
       #8cba73 9px 11px,
-      transparent 11px 19px
-    );
+      transparent 11px 19px);
 }
 
 /* La hoja se desprende de la copa, gira y flota hacia abajo */
@@ -2504,17 +2666,21 @@ footer {
     transform: translate(0, 0) rotate(0deg) scale(0.55);
     opacity: 0;
   }
+
   10% {
     transform: translate(calc(var(--sway, 0px) * 0.12), 26px) rotate(35deg) scale(1);
     opacity: 1;
   }
+
   55% {
     transform: translate(calc(var(--sway, 0px) * 0.6), 190px) rotate(190deg) scale(1);
     opacity: 1;
   }
+
   90% {
     opacity: 0.85;
   }
+
   100% {
     transform: translate(var(--sway, 0px), 330px) rotate(355deg) scale(1);
     opacity: 0;
@@ -2579,7 +2745,7 @@ footer {
 /* --------------------------------------------------------------------------
    Responsive
    -------------------------------------------------------------------------- */
-@media (width <= 900px) {
+@media (width <=900px) {
   .container {
     width: min(100% - 34px, 720px);
   }
@@ -2735,7 +2901,7 @@ footer {
   }
 }
 
-@media (width <= 600px) {
+@media (width <=600px) {
   .container {
     width: calc(100% - 28px);
   }
@@ -2814,7 +2980,7 @@ footer {
   }
 
   .section-heading p,
-  .activities-intro > p {
+  .activities-intro>p {
     font-size: 13px;
   }
 

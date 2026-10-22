@@ -11,6 +11,7 @@ export const CRISIS_LINES = [
     name: 'Yo Te Escucho — Villavicencio',
     kind: 'Línea local de escucha y orientación',
     scope: 'Villavicencio',
+    enVillavicencio: true,
     badge: 'local',
     hours: '24 horas, 7 días',
     phones: [{ label: 'Llamada gratuita', number: '01 8000 931 089', tel: 'tel:018000931089' }],
@@ -22,6 +23,7 @@ export const CRISIS_LINES = [
     name: 'Línea Amiga de Salud Mental — Meta',
     kind: 'Línea departamental de apoyo psicológico',
     scope: 'Departamento del Meta',
+    enVillavicencio: true,
     badge: 'local',
     hours: '24 horas, 7 días',
     phones: [
@@ -36,6 +38,7 @@ export const CRISIS_LINES = [
     name: 'Línea Violeta — Villavicencio',
     kind: 'Orientación en crisis por violencia de género',
     scope: 'Villavicencio',
+    enVillavicencio: true,
     badge: 'local',
     hours: '24 horas, 7 días',
     phones: [{ label: 'Llamada', number: '316 742 6938', tel: 'tel:3167426938' }],

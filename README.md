@@ -170,6 +170,7 @@ realmente publicados. El registro de escenarios y resultados está en [`PRUEBAS.
 |---|---|
 | `GET /api/routes` | Todo el contenido (líneas, centros, frases, momentos). |
 | `GET /api/health` | Estado del servidor. |
+| `POST /api/support` | Reporte de un fallo del sitio. Responde `201` con un número de ticket. |
 
 Cada línea de `lines` incluye `enVillavicencio: true|false`, que es lo que usa el
 filtro “En Villavicencio”. El mismo campo existe en `client/src/crisis.js`, así que
@@ -177,8 +178,26 @@ el filtro da el mismo resultado con el servidor caído (la lista local de crisis
 usa a propósito para la ayuda nunca dependa de la red). Las pruebas verifican que
 ambas listas coincidan en identificadores, banderas y teléfonos.
 
-`server.js` exporta `createApp({ dataFile, serveClient })`: las pruebas inyectan un archivo de
-datos sintético y levantan el servidor en un puerto efímero, sin tocar `data/routes.json`.
+`server.js` exporta `createApp({ dataFile, serveClient, supportOutbox, supportLimite })`:
+las pruebas inyectan un archivo de datos sintético y un buzón temporal, y levantan el
+servidor en un puerto efímero, sin tocar `data/routes.json` ni `data/support/`.
+
+### Soporte (`/soporte`)
+
+El enlace **Soporte** del pie lleva a una landing propia (`/soporte`) con un formulario
+para reportar fallos: qué pasó, en qué sección, qué tanto afecta, descripción y pasos
+para reproducirlo. El formulario envía `POST /api/support` y el servidor compone el
+correo y lo deja en `data/support/` (carpeta ignorada por git, son reportes de personas):
+
+- `RC-XXXXXX-XX.eml` — el mensaje completo, listo para abrir con cualquier cliente de correo.
+- `inbox.jsonl` — el índice: una línea JSON por reporte.
+- La consola del servidor registra `[soporte] RC-… enviado a …`.
+
+El buzón por defecto es `soporte@rutaclara.test`: una dirección **sintética**, porque
+`.test` está reservado por la RFC 2606 y no puede pertenecer a nadie. Para usar una real,
+basta `SUPPORT_EMAIL=tu@correo.com` en el entorno. Para entrega real por SMTP solo hay que
+añadir el transporte dentro de `entregarCorreo()` (en `server.js`); ni la página ni la API
+cambian.
 
 **Música de la Zona de paz.** Es **automática**: al entrar a la pestaña arranca una secuencia de
 *beats* suaves y tranquilizantes **generada en el propio navegador con Web Audio** (pulso grave lento

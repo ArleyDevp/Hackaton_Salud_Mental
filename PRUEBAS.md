@@ -144,11 +144,14 @@ Además, el artefacto de producción compila sin errores:
 ```
 $ npm run build
 ✓ 28 modules transformed.
-dist/index.html                  1.01 kB │ gzip:  0.52 kB
-dist/assets/index-Cxf1Gs4Z.css  37.69 kB │ gzip:  8.62 kB
-dist/assets/index-Cx7FePdm.js  184.73 kB │ gzip: 58.59 kB
+dist/index.html                 1.01 kB │ gzip:  0.52 kB
+dist/assets/index-*.css        37.69 kB │ gzip:  8.62 kB
+dist/assets/index-*.js        184.73 kB │ gzip: 58.59 kB
 ✓ built in 3.02s
 ```
+
+Los nombres de los archivos con hash (`index-*.js`, `index-*.css`) cambian en
+cada compilación; se omiten deliberadamente para que este registro no caduque.
 
 ---
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CRISIS_LINES } from './crisis.js';
+import IsoCity, { fitScene } from './IsoCity.jsx';
 import AnimatedBackground from './components/AnimatedBackground.jsx';
 import useReducedMotion from './hooks/useReducedMotion.js';
 
@@ -1560,6 +1561,34 @@ export function CentersTab({ centers }) {
   const [active, setActive] = useState(list[0]?.id || null);
   const current = list.find((c) => c.id === active) || list[0];
 
+  // La ciudad se dibuja sobre el tamaño real del contenedor para que el lienzo
+  // y el SVG coincidan píxel a píxel en cualquier ancho.
+  const stageRef = useRef(null);
+  const [size, setSize] = useState({ w: 720, h: 540 });
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return undefined;
+    const medir = () => {
+      const r = el.getBoundingClientRect();
+      const w = Math.round(r.width);
+      const h = Math.round(r.height);
+      // jsdom y el primer pintado devuelven 0: se conservan las medidas por
+      // defecto para que la escena nunca genere coordenadas inválidas.
+      if (w > 0 && h > 0) setSize((s) => (s.w === w && s.h === h ? s : { w, h }));
+    };
+    medir();
+    window.addEventListener('resize', medir);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(medir) : null;
+    if (ro) ro.observe(el);
+    return () => {
+      window.removeEventListener('resize', medir);
+      if (ro) ro.disconnect();
+    };
+  }, []);
+
+  const fit = fitScene(size.w, size.h);
+
   return (
     <section className="tab-section centers-section">
       <div className="container">
@@ -1610,7 +1639,19 @@ export function CentersTab({ centers }) {
             ))}
           </div>
 
-          <div className="map-frame">
+          {/* La ciudad: pieza ilustrada y animada. No lleva mapa dentro. */}
+          <div className="city-stage" ref={stageRef}>
+            <IsoCity width={size.w} height={size.h} fit={fit} />
+          </div>
+        </div>
+
+        {/* El mapa real va aparte: misma capacidad de ubicación, cero anidación. */}
+        <div className="real-map">
+          <div className="real-map-head">
+            <h3>Mapa real de Villavicencio</h3>
+            <p>OpenStreetMap. Mapa fijo: no pedimos ni usamos tu ubicación.</p>
+          </div>
+          <div className="real-map-canvas">
             {current && (
               <iframe
                 key={current.id}
@@ -1623,15 +1664,15 @@ export function CentersTab({ centers }) {
                 loading="lazy"
               />
             )}
-            <div className="map-caption">
-              {current
-                ? `${current.name} · ${current.address}. ${
-                    tieneCoordenadas(current)
-                      ? 'Ubicación aproximada para el prototipo; confirma con la entidad.'
-                      : 'Ficha sin coordenadas verificadas: el mapa no señala un punto exacto. Confirma la dirección con la entidad.'
-                  }`
-                : 'Mapa general de Villavicencio.'}
-            </div>
+          </div>
+          <div className="map-caption">
+            {current
+              ? `${current.name} · ${current.address}. ${
+                  tieneCoordenadas(current)
+                    ? 'Ubicación aproximada para el prototipo; confirma con la entidad.'
+                    : 'Ficha sin coordenadas verificadas: el mapa no señala un punto exacto. Confirma la dirección con la entidad.'
+                }`
+              : 'Mapa general de Villavicencio.'}
           </div>
         </div>
 

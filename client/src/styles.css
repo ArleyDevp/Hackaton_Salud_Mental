@@ -1926,20 +1926,59 @@ footer {
   font-weight: 800;
 }
 
-.map-frame {
+/* Escenario de la ciudad: contenedor adherido, con la escena a sangre. */
+.city-stage {
   border-radius: var(--radius-lg);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
-  background: var(--pearl);
+  background: #14405a;
   position: sticky;
   top: 90px;
   overflow: hidden;
+  aspect-ratio: 4 / 3;
 }
 
-.map-frame iframe {
+/* El mapa real: tarjeta aparte, plana y legible. No vive dentro de la ciudad. */
+.real-map {
+  margin-top: 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  background: var(--white);
+  overflow: hidden;
+}
+
+.real-map-head {
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 18px;
+  padding: 16px 20px 12px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.real-map-head h3 {
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  font-size: 13px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.real-map-head p {
+  color: var(--ink-soft);
+  font-size: 11px;
+  margin: 0;
+}
+
+.real-map-canvas {
+  background: #dfe7e4;
+}
+
+.real-map-canvas iframe {
   border: 0;
   width: 100%;
-  height: 520px;
+  height: 400px;
   display: block;
 }
 
@@ -1949,6 +1988,78 @@ footer {
   color: var(--ink-soft);
   border-top: 1px solid var(--line);
   background: var(--white);
+}
+
+/* --------------------------------------------------------------------------
+   Ciudad isométrica animada — geometría vectorial dibujada, sin mapa dentro.
+   -------------------------------------------------------------------------- */
+.iso-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* Momento de entrada: cada volumen brota desde el suelo en escalonado. La
+   ciudad se monta una sola vez al entrar en la pestaña. */
+.iso-bld {
+  animation: iso-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i) * 34ms);
+}
+
+@keyframes iso-rise {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.iso-tree {
+  animation-name: iso-grow, iso-sway;
+  animation-duration: 500ms, 5s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1), ease-in-out;
+  animation-delay: calc(var(--i) * 20ms + 240ms), calc(1.5s + var(--sway));
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: backwards, none;
+}
+
+@keyframes iso-grow {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes iso-sway {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(0, -1.6px); }
+}
+
+/* Vehículos sobre el anillo: entran y salen de la isla fundiéndose, sin saltos. */
+.iso-car {
+  animation-name: iso-drive;
+  animation-duration: var(--dur);
+  animation-timing-function: linear;
+  animation-delay: var(--delay);
+  animation-iteration-count: infinite;
+  animation-fill-mode: backwards;
+}
+
+@keyframes iso-drive {
+  0%   { opacity: 0; transform: translate(var(--x0), var(--y0)); }
+  12%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--x1), var(--y1)); }
+}
+
+/* Todo lo ambiental es decorativo: si la persona pide menos movimiento, la
+   ciudad queda quieta y los vehículos se aparcan en su sitio. */
+@media (prefers-reduced-motion: reduce) {
+  .iso-bld,
+  .iso-tree {
+    animation: none;
+  }
+
+  .iso-car {
+    animation: none;
+    opacity: 1;
+    transform: translate(var(--x0), var(--y0));
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -2998,12 +3109,12 @@ footer {
     gap: 30px;
   }
 
-  .map-frame {
+  .city-stage {
     position: static;
   }
 
-  .map-frame iframe {
-    height: 380px;
+  .real-map-canvas iframe {
+    height: 340px;
   }
 
   .tab-section {

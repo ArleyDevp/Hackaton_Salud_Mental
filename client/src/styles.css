@@ -429,6 +429,24 @@ section {
 }
 
 /* --------------------------------------------------------------------------
+   Animación de desvanecido/revelado al navegar y hacer scroll (subir o bajar)
+   -------------------------------------------------------------------------- */
+section.section-fade,
+.section-divider.section-fade {
+  opacity: 0;
+  transform: translateY(26px) scale(0.99);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+section.section-fade.section-visible,
+.section-divider.section-fade.section-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* --------------------------------------------------------------------------
    Secciones generales con fondo de puntos y halo de calma
    -------------------------------------------------------------------------- */
 .orientation-section {
@@ -3941,6 +3959,13 @@ footer {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  section.section-fade,
+  .section-divider.section-fade {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 
   .breath-circle,

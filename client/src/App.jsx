@@ -3228,6 +3228,39 @@ export default function App() {
           : 'Ruta Clara Meta | Orientación en salud mental';
   }, [activeTab, enSoporte]);
 
+  // Animación de desvanecido/revelado al navegar y hacer scroll (subir o bajar)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('section-visible');
+          } else {
+            // Al salir del campo de visión (subiendo o bajando), retiramos la clase
+            // para que al volver a entrar se vuelva a desvanecer suavemente.
+            entry.target.classList.remove('section-visible');
+          }
+        });
+      },
+      {
+        threshold: 0.08,
+        rootMargin: '0px 0px -40px 0px'
+      }
+    );
+
+    const elements = document.querySelectorAll('section, .section-divider');
+    elements.forEach((el) => {
+      el.classList.add('section-fade');
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [activeTab, enSoporte]);
+
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };

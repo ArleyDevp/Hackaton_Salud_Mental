@@ -1,0 +1,243 @@
+{
+  "_aviso": "DATOS SINTÉTICOS. Todo lo que aparece en este archivo es inventado para pruebas: teléfonos, direcciones, enlaces, instituciones y fechas no corresponden a servicios reales y no deben marcarse ni publicarse. Ningún valor de este archivo se sirve en producción.",
+  "meta": {
+    "nombre": "Ruta Clara Meta — Entorno de pruebas",
+    "region": "Villavicencio (sintético)",
+    "descripcion": "Datos ficticios para verificar la API sin tocar información real.",
+    "aviso": "Este es un aviso sintético de prueba.",
+    "privacidad": "Sin cuentas, sin ubicación, sin guardado. (sintético)",
+    "reporteCorreo": "pruebas@example.test"
+  },
+  "crisis": [
+    {
+      "id": "linea-sintetica-uno",
+      "name": "Línea Sintética Uno — Prueba",
+      "kind": "Canal falso de prueba",
+      "scope": "Ciudad Sintética",
+      "badge": "prueba",
+      "hours": "00 a 00, nunca",
+      "phones": [
+        {
+          "label": "Llamada de prueba",
+          "number": "600 000 0001",
+          "tel": "tel:6000000001"
+        }
+      ],
+      "whatsapp": {
+        "label": "WhatsApp",
+        "number": "600 000 0001",
+        "url": "https://example.test/whatsapp/linea-sintetica-uno"
+      },
+      "source": "Fuente sintética — documento de prueba",
+      "verified": true,
+      "enVillavicencio": true,
+      "consulta": "octubre de 2099"
+    },
+    {
+      "id": "linea-sintetica-dos",
+      "name": "Línea Sintética Dos — Prueba",
+      "kind": "Canal falso de prueba",
+      "scope": "Zona de ensayo",
+      "badge": "prueba",
+      "hours": "00 a 00, nunca",
+      "phones": [
+        {
+          "label": "Llamada de prueba",
+          "number": "600 000 0002",
+          "tel": "tel:6000000002"
+        }
+      ],
+      "source": "Fuente sintética — documento de prueba",
+      "verified": true,
+      "enVillavicencio": true,
+      "consulta": "octubre de 2099"
+    },
+    {
+      "id": "linea-sintetica-tres",
+      "name": "Línea Sintética Tres — Emergencia",
+      "kind": "Canal falso de prueba",
+      "scope": "Cobertura nacional",
+      "badge": "emergencias",
+      "hours": "00 a 00, nunca",
+      "phones": [
+        {
+          "label": "Llamada de prueba",
+          "number": "900",
+          "tel": "tel:900"
+        }
+      ],
+      "source": "Fuente sintética — documento de prueba",
+      "verified": true,
+      "enVillavicencio": false,
+      "consulta": "octubre de 2099"
+    }
+  ],
+  "lines": [
+    {
+      "id": "linea-sintetica-uno",
+      "name": "Línea Sintética Uno — Prueba",
+      "eyebrow": "Llamada y WhatsApp · 24/7",
+      "description": "Canal falso para verificar que la tarjeta se pinta con datos de prueba.",
+      "scope": "Ciudad Sintética",
+      "enVillavicencio": true,
+      "featured": true,
+      "phones": [
+        {
+          "label": "Llamada de prueba",
+          "number": "600 000 0001",
+          "tel": "tel:6000000001"
+        }
+      ],
+      "whatsapp": {
+        "label": "WhatsApp",
+        "number": "600 000 0001",
+        "url": "https://example.test/whatsapp/linea-sintetica-uno"
+      },
+      "source": "Fuente sintética — documento de prueba",
+      "consulta": "octubre de 2099"
+    },
+    {
+      "id": "linea-sintetica-dos",
+      "name": "Línea Sintética Dos — Prueba",
+      "eyebrow": "Solo llamada · 24/7",
+      "description": "Otra bandera cierta con un scope con redacción distinta, para demostrar que el filtro no depende del texto.",
+      "scope": "Zona de ensayo",
+      "enVillavicencio": true,
+      "featured": false,
+      "phones": [
+        {
+          "label": "Llamada de prueba",
+          "number": "600 000 0002",
+          "tel": "tel:6000000002"
+        }
+      ],
+      "source": "Fuente sintética — documento de prueba",
+      "consulta": "octubre de 2099"
+    },
+    {
+      "id": "linea-sintetica-tres",
+      "name": "Línea Sintética Tres — Emergencia",
+      "eyebrow": "Emergencias · 24/7",
+      "description": "Canal falso que NO pertenece a la ciudad, para verificar el filtrado por bandera.",
+      "scope": "Cobertura nacional",
+      "enVillavicencio": false,
+      "featured": false,
+      "phones": [
+        {
+          "label": "Llamada de prueba",
+          "number": "900",
+          "tel": "tel:900"
+        }
+      ],
+      "source": "Fuente sintética — documento de prueba",
+      "consulta": "octubre de 2099"
+    }
+  ],
+  "centers": [
+    {
+      "id": "centro-sintetico-a",
+      "name": "Centro Sintético A",
+      "address": "Calle Falsa 123, barrio de prueba",
+      "phone": "600 000 0100",
+      "tel": "tel:6000000100",
+      "hours": "Lunes a viernes, 8:00 a 6:00 (sintético)",
+      "verified": true,
+      "note": "Dirección falsa usada para verificar el pintado de la tarjeta.",
+      "source": "Fuente sintética — documento de prueba",
+      "consulta": "octubre de 2099",
+      "lat": 4.1,
+      "lon": -73.6
+    },
+    {
+      "id": "centro-sintetico-b",
+      "name": "Centro Sintético B",
+      "address": "Carrera Inventada 456, lote de prueba",
+      "phone": "600 000 0200",
+      "tel": "tel:6000000200",
+      "hours": "Sábados, 9:00 a 12:00 (sintético)",
+      "verified": true,
+      "note": "Otra dirección falsa, sin lat/lon, para verificar el mapa sin coordenadas.",
+      "source": "Fuente sintética — documento de prueba",
+      "consulta": "octubre de 2099"
+    }
+  ],
+  "closing": {
+    "kicker": "Tarjeta de cierre sintética",
+    "title": "Dar el primer paso también es avanzar.",
+    "text": "Tarjeta de cierre con una línea sintética verificada, en sustitución de cualquier número sin fuente.",
+    "buttonLabel": "Llamar gratis al 600 000 0001",
+    "buttonHref": "tel:6000000001",
+    "source": "Fuente sintética — documento de prueba",
+    "consulta": "octubre de 2099",
+    "secondaryLabel": "Ver todas las líneas de ayuda",
+    "secondaryTab": "lineas"
+  },
+  "phrases": [
+    "Frase sintética número uno.",
+    "Frase sintética número dos.",
+    "Frase sintética número tres."
+  ],
+  "needs": [
+    {
+      "id": "hablar",
+      "title": "Quiero hablar con alguien",
+      "subtitle": "Canales de prueba",
+      "route": "crisis",
+      "message": "Mensaje sintético de acompañamiento."
+    },
+    {
+      "id": "cercana",
+      "title": "Busco atención cercana",
+      "subtitle": "Rutas de prueba",
+      "route": "centros",
+      "message": "Segundo mensaje sintético de acompañamiento."
+    }
+  ],
+  "resources": [
+    {
+      "kicker": "Prueba",
+      "title": "Recurso sintético de lectura",
+      "text": "Texto de relleno para verificar la tarjeta de recursos.",
+      "icon": "book"
+    },
+    {
+      "kicker": "Prueba",
+      "title": "Recurso sintético de cuidado",
+      "text": "Texto de relleno para verificar la segunda tarjeta de recursos.",
+      "icon": "heart"
+    }
+  ],
+  "habits": [
+    {
+      "title": "Hábito sintético A",
+      "tip": "Consejo de prueba A.",
+      "why": "Justificación sintética A."
+    }
+  ],
+  "changeAir": [
+    {
+      "number": "01",
+      "kicker": "Prueba",
+      "title": "Actividad sintética",
+      "text": "Texto de la actividad sintética."
+    }
+  ],
+  "regalate": [
+    {
+      "categoria": "Prueba",
+      "actividad": "Momento sintético uno",
+      "descripcion": "Descripción sintética del primer momento."
+    },
+    {
+      "categoria": "Prueba",
+      "actividad": "Momento sintético dos",
+      "descripcion": "Descripción sintética del segundo momento."
+    }
+  ],
+  "sources": [
+    {
+      "label": "Entorno de pruebas",
+      "url": "https://example.test/fuente"
+    }
+  ]
+}

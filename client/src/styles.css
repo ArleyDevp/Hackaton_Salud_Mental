@@ -2514,6 +2514,26 @@ footer {
 }
 
 .tree-scene {
+  /* --- geometría: el árbol se planta DENTRO de la franja verde ---
+     --tree-h es el alto del SVG y 0.88 la posición de la línea del pasto
+     dentro del dibujo (440 de 500). Con este cálculo la base del tronco
+     queda ~45px por debajo del borde superior del pasto. */
+  --ground-h: 96px;
+  --tree-w: 416px;
+  --tree-h: 495px;
+
+  /* --- paleta del árbol (pasteles verdes + madera) --- */
+  --tree-trunk-light: #c19a70;
+  --tree-trunk: #a87d52;
+  --tree-trunk-dark: #6b4c31;
+  --tree-bark-dark: #4e3722;
+  --tree-bark-light: #d8b389;
+  --tree-branch: #8a6142;
+  --tree-leaf-dark: #5e9e62;
+  --tree-leaf-mid: #86bb74;
+  --tree-leaf-light: #bee09a;
+  --tree-leaf-vein: #3f7048;
+
   position: relative;
   height: 560px;
   margin-top: 40px;
@@ -2527,33 +2547,79 @@ footer {
 
 .tree-holder {
   position: absolute;
-  top: 12px;
+  top: calc(100% - var(--ground-h) - var(--tree-h) * 0.88);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 6;
 }
 
 .tree-svg {
-  width: 380px;
-  height: 380px;
+  width: var(--tree-w);
+  height: var(--tree-h);
   display: block;
+  overflow: visible;
 }
 
-/* La copa respira suavemente, como movida por el aire */
-.tree-foliage {
-  transform-origin: 50% 100%;
-  animation: foliage-sway 9s ease-in-out infinite;
+/* La copa se mece desde la base del tronco (el tronco queda quieto) */
+.tree-canopy,
+.tree-cluster-group {
+  transform-box: view-box;
+  transform-origin: 50% 96.8%;
+  animation: tree-sway 7.2s ease-in-out infinite;
+  will-change: transform;
 }
 
-@keyframes foliage-sway {
+.tree-canopy {
+  animation-name: tree-sway-soft;
+}
+
+/* los racimos van desfasados para que la copa no se mueva en bloque */
+.tree-cluster-group {
+  animation-duration: 7.6s;
+}
+
+.tree-cluster-back {
+  animation-delay: -0.8s;
+}
+
+.tree-cluster-mid {
+  animation-delay: -1.9s;
+}
+
+.tree-cluster-front {
+  animation-delay: -3.1s;
+}
+
+@keyframes tree-sway-soft {
 
   0%,
   100% {
-    transform: rotate(-1.5deg) translateX(-3px);
+    transform: rotate(-0.45deg);
   }
 
   50% {
-    transform: rotate(1.5deg) translateX(3px);
+    transform: rotate(0.45deg);
+  }
+}
+
+@keyframes tree-sway {
+
+  0%,
+  100% {
+    transform: rotate(-0.35deg);
+  }
+
+  50% {
+    transform: rotate(0.35deg);
+  }
+}
+
+/* Con movimiento reducido el árbol se queda completamente quieto */
+@media (prefers-reduced-motion: reduce) {
+
+  .tree-canopy,
+  .tree-cluster-group {
+    animation: none;
   }
 }
 
@@ -2594,9 +2660,9 @@ footer {
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 380px;
+  width: var(--tree-w);
   transform: translateX(-50%);
-  z-index: 3;
+  z-index: 7;
 }
 
 .leaf {
@@ -2660,30 +2726,46 @@ footer {
       transparent 11px 19px);
 }
 
-/* La hoja se desprende de la copa, gira y flota hacia abajo */
+/* La hoja se desprende de la copa, baja y se posa en el pasto:
+   74% aterriza, se queda quieta hasta el 92% y se desvanece despacio. */
 @keyframes leaf-fall {
   0% {
     transform: translate(0, 0) rotate(0deg) scale(0.55);
     opacity: 0;
   }
 
-  10% {
-    transform: translate(calc(var(--sway, 0px) * 0.12), 26px) rotate(35deg) scale(1);
+  8% {
+    transform: translate(calc(var(--sway, 0px) * 0.14), calc(var(--fall, 330px) * 0.07)) rotate(38deg) scale(1);
     opacity: 1;
   }
 
-  55% {
-    transform: translate(calc(var(--sway, 0px) * 0.6), 190px) rotate(190deg) scale(1);
+  66% {
+    transform: translate(calc(var(--sway, 0px) * 0.78), calc(var(--fall, 330px) * 0.84)) rotate(244deg) scale(1);
     opacity: 1;
   }
 
-  90% {
-    opacity: 0.85;
+  74% {
+    transform: translate(calc(var(--sway, 0px) * 0.94), calc(var(--fall, 330px) * 0.97)) rotate(330deg) scale(0.96);
+    opacity: 1;
+  }
+
+  92% {
+    transform: translate(var(--sway, 0px), var(--fall, 330px)) rotate(342deg) scale(0.95);
+    opacity: 0.92;
   }
 
   100% {
-    transform: translate(var(--sway, 0px), 330px) rotate(355deg) scale(1);
+    transform: translate(var(--sway, 0px), var(--fall, 330px)) rotate(348deg) scale(0.95);
     opacity: 0;
+  }
+}
+
+/* Sin animación, las hojas esperan posadas sobre el pasto (siguen siendo tocables) */
+@media (prefers-reduced-motion: reduce) {
+  .leaf {
+    animation: none;
+    opacity: 0.95;
+    transform: translate(var(--sway, 0px), var(--fall, 330px)) rotate(340deg);
   }
 }
 
@@ -2885,15 +2967,8 @@ footer {
 
   .tree-scene {
     height: 470px;
-  }
-
-  .tree-svg {
-    width: 300px;
-    height: 300px;
-  }
-
-  .leaves {
-    width: 300px;
+    --tree-w: 340px;
+    --tree-h: 405px;
   }
 
   .habits-section {

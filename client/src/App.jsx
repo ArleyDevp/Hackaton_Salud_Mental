@@ -1,5 +1,17 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CRISIS_LINES } from './crisis.js';
+import AnimatedBackground from './components/AnimatedBackground.jsx';
+import useReducedMotion from './hooks/useReducedMotion.js';
+
+/* Cada pestaña tiene su propio fondo animado */
+const BACKGROUND_VARIANT = {
+  inicio: 'inicio',
+  lineas: 'ayuda',
+  viento: 'viento',
+  centros: 'centros',
+  paz: 'paz',
+  regalate: 'momentos'
+};
 
 /* ==========================================================================
    Iconos (SVG en línea, sin dependencias externas)
@@ -929,6 +941,18 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
               <article className={`resource-card ${r.tone || ''}`} key={r.title}>
                 <div className="resource-illustration">
                   <span />
+                  {/* Iconos flotando: decoración suave, sin texto ni interacción */}
+                  <div className="resource-drift" aria-hidden="true">
+                    <span className="resource-drift__item resource-drift__item--a">
+                      <Icon name="sparkle" size={14} />
+                    </span>
+                    <span className="resource-drift__item resource-drift__item--b">
+                      <Icon name="leaf" size={12} />
+                    </span>
+                    <span className="resource-drift__item resource-drift__item--c">
+                      <Icon name="heart" size={10} />
+                    </span>
+                  </div>
                   <Icon name={r.icon} size={40} />
                 </div>
                 <div className="resource-copy">
@@ -955,6 +979,20 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
         <section className="closing-section">
           <div className="container">
             <div className="closing-card">
+              {/* Atmósfera decorativa: ondas de sonar, estrellitas y el brillo
+                  que respira detrás de "Llamar gratis". No altera el contenido. */}
+              <div className="closing-atmo" aria-hidden="true">
+                <span className="closing-atmo__glow" />
+                <span className="closing-atmo__sonar closing-atmo__sonar--a" />
+                <span className="closing-atmo__sonar closing-atmo__sonar--b" />
+                <span className="closing-atmo__sonar closing-atmo__sonar--c" />
+                <span className="closing-atmo__star closing-atmo__star--a" />
+                <span className="closing-atmo__star closing-atmo__star--b" />
+                <span className="closing-atmo__star closing-atmo__star--c" />
+                <span className="closing-atmo__star closing-atmo__star--d" />
+                <span className="closing-atmo__star closing-atmo__star--e" />
+                <span className="closing-atmo__star closing-atmo__star--f" />
+              </div>
               <div>
                 <span className="section-number">{closing.kicker}</span>
                 <h2 style={{ marginTop: 16 }}>{closing.title}</h2>
@@ -1004,11 +1042,106 @@ const FILTROS_LINEAS = [
   { id: 'villavicencio', label: 'En Villavicencio' }
 ];
 
+/* Clon decorativo que se desvanece en el sitio de la tarjeta que sale.
+   Se cuelga fuera de React unos 280 ms y se retira solo. */
+function spawnExitGhost(card) {
+  const rect = card.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  const ghost = card.cloneNode(true);
+  ghost.removeAttribute('data-line-id');
+  ghost.setAttribute('aria-hidden', 'true');
+  ghost.className = `${card.className} route-card--ghost`;
+  ghost.style.position = 'fixed';
+  ghost.style.left = `${rect.left}px`;
+  ghost.style.top = `${rect.top}px`;
+  ghost.style.width = `${rect.width}px`;
+  ghost.style.height = `${rect.height}px`;
+  ghost.style.margin = '0';
+  ghost.style.pointerEvents = 'none';
+  if ('inert' in ghost) ghost.inert = true;
+
+  (document.querySelector('.app-shell') || document.body).appendChild(ghost);
+
+  // Fuerza el estilo inicial para que el fundido arranque en el acto.
+  void ghost.offsetWidth;
+  ghost.classList.add('is-out');
+  window.setTimeout(() => ghost.remove(), 280);
+}
+
 export function LinesTab({ lines }) {
   const [filter, setFilter] = useState('todas');
   const all = lines || CRISIS_LINES;
   const filtered =
     filter === 'todas' ? all : all.filter((l) => l.enVillavicencio === true);
+
+  const reduced = useReducedMotion();
+  const gridRef = useRef(null);
+  const rectsRef = useRef(null);
+
+  /* Cambio de filtro: la tarjeta que sale se despide con un clon que se
+     desvanece en su antiguo sitio, y las que se quedan se deslizan a su
+     nueva posición (FLIP, 340 ms). Con movimiento reducido, cambio directo. */
+  const changeFilter = (next) => {
+    if (next === filter) return;
+
+    const nextList = next === 'todas' ? all : all.filter((l) => l.enVillavicencio === true);
+    const nextIds = new Set(nextList.map((l) => l.id));
+    const grid = gridRef.current;
+
+    if (!reduced && grid) {
+      const rects = new Map();
+
+      grid.querySelectorAll('[data-line-id]').forEach((card) => {
+        if (nextIds.has(card.dataset.lineId)) {
+          rects.set(card.dataset.lineId, card.getBoundingClientRect());
+        } else {
+          spawnExitGhost(card);
+        }
+      });
+
+      rectsRef.current = rects;
+    }
+
+    setFilter(next);
+  };
+
+  useLayoutEffect(() => {
+    const prev = rectsRef.current;
+    const grid = gridRef.current;
+    rectsRef.current = null;
+    if (!prev || !grid) return undefined;
+
+    const cleanups = [];
+
+    grid.querySelectorAll('[data-line-id]').forEach((card) => {
+      const before = prev.get(card.dataset.lineId);
+      if (!before) return;
+
+      const now = card.getBoundingClientRect();
+      const dx = Math.round(before.left - now.left);
+      const dy = Math.round(before.top - now.top);
+      if (!dx && !dy) return;
+
+      card.style.transition = 'none';
+      card.style.transform = `translate(${dx}px, ${dy}px)`;
+      void card.offsetWidth;
+      card.style.transition = 'transform 340ms cubic-bezier(0.22, 0.61, 0.36, 1)';
+      card.style.transform = '';
+
+      const done = () => {
+        card.style.transition = '';
+        card.style.transform = '';
+      };
+      card.addEventListener('transitionend', done, { once: true });
+      cleanups.push(() => {
+        card.removeEventListener('transitionend', done);
+        done();
+      });
+    });
+
+    return () => cleanups.forEach((fn) => fn());
+  }, [filter]);
 
   return (
     <section className="tab-section routes-section">
@@ -1029,7 +1162,7 @@ export function LinesTab({ lines }) {
                 type="button"
                 className={filter === f.id ? 'active' : ''}
                 aria-pressed={filter === f.id}
-                onClick={() => setFilter(f.id)}
+                onClick={() => changeFilter(f.id)}
               >
                 {f.label}
               </button>
@@ -1037,14 +1170,18 @@ export function LinesTab({ lines }) {
           </div>
         </div>
 
-        <div className="routes-grid">
+        <div className="routes-grid" ref={gridRef}>
           {filtered.length === 0 && (
             <p className="prototype-note routes-empty">
               Todavía no hay líneas disponibles con este filtro. Prueba con “Todas”.
             </p>
           )}
           {filtered.map((l) => (
-            <article className={`route-card ${l.featured ? 'featured' : ''}`} key={l.id}>
+            <article
+              className={`route-card ${l.featured ? 'featured' : ''}`}
+              data-line-id={l.id}
+              key={l.id}
+            >
               <div className="route-top">
                 <span className="route-icon">
                   <Icon name={l.badge === 'urgent' ? 'shield' : 'phone'} size={22} />
@@ -1259,6 +1396,10 @@ export function WindTab({ setTab }) {
     setBits(reduced ? [] : windBits(cantidad));
     setFeeling(null);
     setPhase('blowing');
+    // El fondo de la sección acelera junto con las partículas del texto.
+    if (!reduced && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('rc:wind-burst'));
+    }
     stopTimer();
     timerRef.current = setTimeout(settle, reduced ? 260 : 3400);
   };
@@ -1432,6 +1573,8 @@ export function CentersTab({ centers }) {
         </div>
 
         <div className="centers-grid">
+          {/* Halo verde suave detrás de la lista de centros (decorativo). */}
+          <div className="centers-halo" aria-hidden="true" />
           <div className="center-list">
             {list.map((c) => (
               <button
@@ -1587,58 +1730,448 @@ function PeaceTab({ phrases, setTab }) {
    ========================================================================== */
 const LEAF_COLORS = ['#8fbf7a', '#a3cd87', '#7cae6a', '#b9d69b', '#96c47f', '#c7dfa6'];
 
+/* --- Formas orgánicas del árbol ------------------------------------------
+   Todo se calcula con una semilla fija (sin Math.random) para que la copa se
+   vea ilustrada a mano pero idéntica en cada render. */
+function treeRand(seed) {
+  let s = seed % 2147483647;
+  if (s <= 0) s += 2147483646;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+/* Devuelve un "blob" cerrado con borde ondulado (Catmull-Rom -> Bézier) */
+function blobPath(cx, cy, rx, ry, wobble, points, seed) {
+  const rnd = treeRand(seed);
+  const pts = Array.from({ length: points }, (_, i) => {
+    const angle = (i / points) * Math.PI * 2;
+    const k = 1 + (rnd() - 0.5) * 2 * wobble;
+    return [cx + Math.cos(angle) * rx * k, cy + Math.sin(angle) * ry * k];
+  });
+  const n = pts.length;
+  const p = (pt) => `${pt[0].toFixed(1)} ${pt[1].toFixed(1)}`;
+  let d = `M${p(pts[0])}`;
+  for (let i = 0; i < n; i += 1) {
+    const p0 = pts[(i - 1 + n) % n];
+    const p1 = pts[i];
+    const p2 = pts[(i + 1) % n];
+    const p3 = pts[(i + 2) % n];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += `C${p(c1)} ${p(c2)} ${p(p2)}`;
+  }
+  return `${d}Z`;
+}
+
+/* Contorno del tronco: ancho en la base y más fino arriba.
+   El SVG mide 420 x 500 y la línea del pasto está en y = 440. */
+const TREE_TRUNK_D =
+  'M183 486C180 434 186 376 194 330C197 314 197.5 303 198 296L222 296C223 306 225 320 229 348C235 396 240 444 238 486Z';
+
+/* Masas de la copa (4 manchas con borde irregular) */
+const TREE_MASSES = [
+  { key: 'main', cx: 210, cy: 190, rx: 131, ry: 103, seed: 91 },
+  { key: 'left', cx: 109, cy: 234, rx: 91, ry: 77, seed: 173 },
+  { key: 'right', cx: 307, cy: 238, rx: 89, ry: 75, seed: 251 },
+  { key: 'top', cx: 171, cy: 111, rx: 79, ry: 63, seed: 347 }
+].map((m) => ({ ...m, d: blobPath(m.cx, m.cy, m.rx, m.ry, 0.13, 18, m.seed) }));
+
+/* Racimos de hojas: 3 planos de profundidad según la luz (arriba-izquierda) */
+const TREE_CLUSTERS = (() => {
+  const out = [];
+  TREE_MASSES.forEach((m, mi) => {
+    const rnd = treeRand(m.seed + 11);
+    const count = mi === 0 ? 15 : 10;
+    for (let i = 0; i < count; i += 1) {
+      const angle = (i / count) * Math.PI * 2 + rnd() * 0.55;
+      const radius = 0.56 + rnd() * 0.46;
+      const cx = m.cx + Math.cos(angle) * m.rx * radius;
+      const cy = m.cy + Math.sin(angle) * m.ry * radius;
+      const light = (-(cx - m.cx) / m.rx - (cy - m.cy) / m.ry) / 2;
+      const r = 13 + rnd() * 12;
+      const leafCount = 2 + Math.floor(rnd() * 3);
+      const leaves = Array.from({ length: leafCount }, () => {
+        const a = rnd() * Math.PI * 2;
+        const dist = r * (0.3 + rnd() * 0.55);
+        return {
+          x: cx + Math.cos(a) * dist,
+          y: cy + Math.sin(a) * dist * 0.9,
+          rot: (a * 180) / Math.PI + 90 + (rnd() - 0.5) * 34,
+          scale: 0.55 + rnd() * 0.45
+        };
+      });
+      out.push({
+        id: `${m.key}-${i}`,
+        cx,
+        cy,
+        depth: light > 0.16 ? 'front' : light < -0.2 ? 'back' : 'mid',
+        d: blobPath(cx, cy, r, r * 0.86, 0.22, 9, m.seed + i * 13),
+        leaves
+      });
+    }
+  });
+  return out;
+})();
+
+const TREE_CLUSTER_FILL = {
+  back: ['#4d8955', '#578f5b', '#5e9e62'],
+  mid: ['#74ae66', '#82b96f', '#8cc277'],
+  front: ['#a9d287', '#b8dd96', '#bee09a']
+};
+
+/* Hojas sueltas a punto de desprenderse del borde de la copa */
+const TREE_LOOSE_LEAVES = [
+  { x: 63, y: 214, rot: -34, scale: 0.92, fill: '#a5cf83' },
+  { x: 349, y: 208, rot: 42, scale: 0.85, fill: '#8fc178' },
+  { x: 133, y: 52, rot: -18, scale: 0.8, fill: '#c2e29e' },
+  { x: 288, y: 88, rot: 26, scale: 0.88, fill: '#9bcb7e' },
+  { x: 55, y: 276, rot: 58, scale: 0.75, fill: '#8bbd74' },
+  { x: 356, y: 150, rot: -12, scale: 0.7, fill: '#b2d98f' }
+];
+
+/* Hojas quietas sobre el pasto, junto a la base del tronco */
+const TREE_GROUND_LEAVES = [
+  { x: 122, y: 478, rot: -22, scale: 0.82, fill: '#a3cd87' },
+  { x: 292, y: 474, rot: 34, scale: 0.78, fill: '#8fbf7a' },
+  { x: 158, y: 488, rot: 12, scale: 0.72, fill: '#b9d69b' },
+  { x: 262, y: 490, rot: -40, scale: 0.74, fill: '#96c47f' },
+  { x: 214, y: 492, rot: 8, scale: 0.66, fill: '#c0dd9f' }
+];
+
+/* Matas de pasto delanteras: tapan la base del tronco y parte de las raíces */
+const TREE_TUFT_D =
+  'M0 0C-2-10-1-20 2-30C4-20 3-10 2 0ZM2 0C5-8 10-16 16-22C11-13 8-6 6 0ZM-1 0C-5-7-10-13-16-16C-10-9-6-4-3 0Z';
+
+const TREE_BASE_TUFTS = (() => {
+  const rnd = treeRand(733);
+  const colors = ['#8cba73', '#a7cf8b', '#96c47f', '#7fae69', '#b3d492'];
+  return Array.from({ length: 16 }, (_, i) => {
+    const spread = i / 15;
+    return {
+      id: `tuft-${i}`,
+      x: 76 + spread * 268 + (rnd() - 0.5) * 12,
+      y: 466 + rnd() * 28,
+      scale: 0.72 + rnd() * 0.6,
+      rot: (rnd() - 0.5) * 18,
+      flip: rnd() > 0.5 ? -1 : 1,
+      fill: colors[i % colors.length]
+    };
+  });
+})();
+
+function TreeCluster({ cluster }) {
+  const fills = TREE_CLUSTER_FILL[cluster.depth];
+  return (
+    <g>
+      <path d={cluster.d} fill={fills[0]} />
+      {cluster.leaves.map((leaf, i) => (
+        <use
+          key={i}
+          href="#tree-leaf"
+          width="24"
+          height="34"
+          fill={fills[(i % (fills.length - 1)) + 1]}
+          transform={`translate(${leaf.x.toFixed(1)} ${leaf.y.toFixed(1)}) rotate(${leaf.rot.toFixed(0)}) scale(${leaf.scale.toFixed(2)}) translate(-12 -17)`}
+        />
+      ))}
+    </g>
+  );
+}
+
 function TreeSvg() {
   return (
-    <svg className="tree-svg" viewBox="0 0 340 340" aria-hidden="true">
+    <svg
+      className="tree-svg"
+      viewBox="0 0 420 500"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
       <defs>
-        <linearGradient id="rc-foliage-a" x1="0.2" y1="0" x2="0.5" y2="1">
-          <stop offset="0%" stopColor="#a8d48a" />
-          <stop offset="100%" stopColor="#5f9a5f" />
+        {/* --- degradados de la copa (atrás oscuro, medio, delante claro) --- */}
+        <linearGradient id="tree-mass-fill" x1="0.18" y1="0" x2="0.72" y2="1">
+          <stop offset="0%" stopColor="var(--tree-leaf-light)" />
+          <stop offset="55%" stopColor="var(--tree-leaf-mid)" />
+          <stop offset="100%" stopColor="var(--tree-leaf-dark)" />
         </linearGradient>
-        <linearGradient id="rc-foliage-b" x1="0.2" y1="0" x2="0.6" y2="1">
-          <stop offset="0%" stopColor="#c0e2a0" />
-          <stop offset="100%" stopColor="#77ae68" />
-        </linearGradient>
-        <linearGradient id="rc-trunk" x1="0" y1="0" x2="0.4" y2="1">
-          <stop offset="0%" stopColor="#a37c58" />
-          <stop offset="100%" stopColor="#6b4f37" />
-        </linearGradient>
-        <radialGradient id="rc-glow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0%" stopColor="#d9eec4" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#d9eec4" stopOpacity="0" />
+        <radialGradient id="tree-inner-shade" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="#3d6b40" stopOpacity="0.34" />
+          <stop offset="70%" stopColor="#3d6b40" stopOpacity="0.14" />
+          <stop offset="100%" stopColor="#3d6b40" stopOpacity="0" />
         </radialGradient>
+        <radialGradient id="tree-sheen" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.4" />
+          <stop offset="70%" stopColor="#ffffff" stopOpacity="0.12" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="tree-crown-shade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2f4f34" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#2f4f34" stopOpacity="0" />
+        </linearGradient>
+        <radialGradient id="tree-halo" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="#eaf7d6" stopOpacity="0.85" />
+          <stop offset="60%" stopColor="#eaf7d6" stopOpacity="0.32" />
+          <stop offset="100%" stopColor="#eaf7d6" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="tree-ground-shadow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="#3f6b46" stopOpacity="0.42" />
+          <stop offset="55%" stopColor="#3f6b46" stopOpacity="0.26" />
+          <stop offset="100%" stopColor="#3f6b46" stopOpacity="0" />
+        </radialGradient>
+
+        {/* --- degradados de la madera --- */}
+        <linearGradient id="tree-bark" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="var(--tree-trunk-light)" />
+          <stop offset="32%" stopColor="var(--tree-trunk)" />
+          <stop offset="70%" stopColor="#7f5c3c" />
+          <stop offset="100%" stopColor="var(--tree-trunk-dark)" />
+        </linearGradient>
+        <linearGradient id="tree-root" x1="0" y1="0" x2="0.4" y2="1">
+          <stop offset="0%" stopColor="#8a6444" />
+          <stop offset="100%" stopColor="#4f3a26" />
+        </linearGradient>
+
+        {/* --- hoja reutilizable (con nervio central) --- */}
+        <symbol id="tree-leaf" viewBox="0 0 24 34">
+          <path d="M12 1.2C6.4 7.6 3.4 15 5.4 22.4c1.2 4.4 3.8 7.8 6.6 10.4 2.8-2.6 5.4-6 6.6-10.4 2-7.4-1-14.8-6.6-21.2Z" />
+          <path
+            d="M12 4.6c0 8 0 16.4 0 24.6"
+            stroke="var(--tree-leaf-vein)"
+            strokeWidth="0.9"
+            strokeOpacity="0.5"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d="M12 11.5 8.6 9.1M12 16.4l-3.6-2.6M12 21.3l-3.4-2.6"
+            stroke="var(--tree-leaf-vein)"
+            strokeWidth="0.7"
+            strokeOpacity="0.35"
+            fill="none"
+            strokeLinecap="round"
+          />
+        </symbol>
+
+        {/* --- recortes: cada masa de la copa y el tronco --- */}
+        {TREE_MASSES.map((m) => (
+          <clipPath key={`clip-${m.key}`} id={`tree-clip-${m.key}`}>
+            <path d={m.d} />
+          </clipPath>
+        ))}
+        <clipPath id="tree-trunk-clip">
+          <path d={TREE_TRUNK_D} />
+        </clipPath>
       </defs>
 
-      {/* luz suave detrás del árbol */}
-      <ellipse cx="170" cy="122" rx="152" ry="134" fill="url(#rc-glow)" />
+      {/* ==================== luz suave detrás de la copa ==================== */}
+      <ellipse className="tree-halo" cx="210" cy="196" rx="196" ry="176" fill="url(#tree-halo)" />
 
-      {/* suelo */}
-      <ellipse cx="170" cy="320" rx="106" ry="13" fill="#cde0b4" opacity="0.75" />
+      {/* ==================== sombra sobre el pasto ========================== */}
+      <ellipse cx="210" cy="462" rx="98" ry="21" fill="url(#tree-ground-shadow)" />
 
-      {/* tronco */}
-      <path d="M157 322 L183 322 L176 212 L164 212 Z" fill="url(#rc-trunk)" />
-
-      {/* ramas */}
-      <g className="tree-branches" fill="none" stroke="url(#rc-trunk)" strokeLinecap="round">
-        <path d="M170 234 C 150 210 122 198 90 188" strokeWidth="11" />
-        <path d="M170 234 C 190 210 218 198 250 188" strokeWidth="11" />
-        <path d="M170 208 C 160 180 148 160 130 140" strokeWidth="9" />
-        <path d="M170 208 C 180 180 192 160 210 140" strokeWidth="9" />
-        <path d="M170 192 C 170 168 170 154 170 132" strokeWidth="8" />
+      {/* ==================== hojas ya posadas en el pasto =================== */}
+      <g className="tree-ground-leaves">
+        {TREE_GROUND_LEAVES.map((leaf) => (
+          <use
+            key={`ground-${leaf.x}`}
+            href="#tree-leaf"
+            width="24"
+            height="34"
+            fill={leaf.fill}
+            transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.rot}) scale(${leaf.scale}) translate(-12 -17)`}
+          />
+        ))}
       </g>
 
-      {/* copa */}
-      <g className="tree-foliage">
-        <ellipse cx="170" cy="118" rx="92" ry="78" fill="url(#rc-foliage-a)" />
-        <ellipse cx="96" cy="162" rx="62" ry="50" fill="url(#rc-foliage-b)" />
-        <ellipse cx="244" cy="162" rx="62" ry="50" fill="url(#rc-foliage-b)" />
-        <ellipse cx="130" cy="86" rx="50" ry="42" fill="url(#rc-foliage-b)" />
-        <ellipse cx="214" cy="94" rx="46" ry="38" fill="url(#rc-foliage-a)" />
-        <circle cx="126" cy="128" r="6.5" fill="#fff" opacity="0.4" />
-        <circle cx="210" cy="140" r="5" fill="#fff" opacity="0.34" />
-        <circle cx="166" cy="72" r="7" fill="#fff" opacity="0.3" />
-        <circle cx="234" cy="114" r="4" fill="#fff" opacity="0.32" />
-        <circle cx="84" cy="150" r="4.5" fill="#fff" opacity="0.3" />
+      {/* ==================== raíces (campana, hacia el suelo) =============== */}
+      <g className="tree-roots">
+        <path d="M188 466C172 480 150 490 126 496 146 501 172 495 194 481Z" fill="url(#tree-root)" />
+        <path d="M190 474C180 488 168 496 154 500 168 502 184 496 194 486Z" fill="url(#tree-root)" />
+        <path d="M230 474C240 488 252 496 266 500 252 502 236 496 226 486Z" fill="url(#tree-root)" />
+        <path d="M232 466C248 480 270 490 294 496 274 501 248 495 226 481Z" fill="url(#tree-root)" />
+      </g>
+
+      {/* ==================== ramas (van detrás del tronco: unión suave) ==== */}
+      <g
+        className="tree-branches"
+        fill="none"
+        stroke="var(--tree-branch)"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M216 374C188 358 156 332 128 302 116 290 106 278 100 268" strokeWidth="15" />
+        <path d="M204 374C232 358 264 332 292 302 304 290 314 280 320 270" strokeWidth="15" />
+        <path d="M213 340C197 314 179 290 169 266" strokeWidth="11" />
+        <path d="M207 338C223 312 239 290 247 266" strokeWidth="11" />
+        <path d="M210 322C208 298 208 278 210 256" strokeWidth="10" />
+        {/* ramillas secundarias que se pierden entre las hojas */}
+        <path d="M128 302C112 290 98 286 84 286" strokeWidth="5" />
+        <path d="M292 302C308 292 322 290 336 294" strokeWidth="5" />
+        <path d="M169 266C158 250 148 242 138 236" strokeWidth="4" />
+      </g>
+      <g
+        className="tree-branches-light"
+        fill="none"
+        stroke="#c69f72"
+        strokeOpacity="0.32"
+        strokeLinecap="round"
+      >
+        <path d="M214 370C188 354 158 330 132 302" strokeWidth="4" />
+        <path d="M206 370C232 354 262 330 288 302" strokeWidth="4" />
+      </g>
+
+      {/* ==================== tronco ======================================== */}
+      <path className="tree-trunk" d={TREE_TRUNK_D} fill="url(#tree-bark)" />
+
+      {/* corteza: vetas curvas (oscuras y claras), nudo, grieta y sombra de copa */}
+      <g clipPath="url(#tree-trunk-clip)">
+        <g fill="none" strokeLinecap="round">
+          <path
+            d="M197 480C195 430 199 380 205 336"
+            stroke="var(--tree-bark-dark)"
+            strokeWidth="2.2"
+            strokeOpacity="0.45"
+          />
+          <path
+            d="M212 482C209 434 213 384 217 340"
+            stroke="var(--tree-bark-dark)"
+            strokeWidth="1.6"
+            strokeOpacity="0.32"
+          />
+          <path
+            d="M228 476C226 438 229 396 232 352"
+            stroke="var(--tree-bark-dark)"
+            strokeWidth="1.4"
+            strokeOpacity="0.26"
+          />
+          <path
+            d="M189 478C187 436 191 392 197 350"
+            stroke="var(--tree-bark-light)"
+            strokeWidth="2"
+            strokeOpacity="0.38"
+          />
+          <path
+            d="M221 468C219 430 221 392 225 356"
+            stroke="var(--tree-bark-light)"
+            strokeWidth="1.2"
+            strokeOpacity="0.28"
+          />
+        </g>
+        {/* nudo / cicatriz */}
+        <ellipse cx="206" cy="404" rx="6.4" ry="9.2" fill="var(--tree-bark-dark)" opacity="0.55" />
+        <ellipse cx="205.4" cy="403.4" rx="3" ry="5.4" fill="var(--tree-bark-light)" opacity="0.35" />
+        <path
+          d="M206 413c-1.6 7-1.4 12 0.6 18"
+          stroke="var(--tree-bark-dark)"
+          strokeWidth="1.6"
+          strokeOpacity="0.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        {/* grieta fina */}
+        <path d="M224 372c-1 10-1.6 18-2 28" stroke="var(--tree-bark-dark)" strokeWidth="1.1" strokeOpacity="0.4" fill="none" />
+        {/* sombra que proyecta la copa sobre el tronco alto */}
+        <rect x="180" y="292" width="62" height="66" fill="url(#tree-crown-shade)" />
+      </g>
+
+      {/* ==================== copa ========================================== */}
+      <g className="tree-canopy">
+        {/* plano trasero: racimos oscuros y desaturados */}
+        <g className="tree-cluster-group tree-cluster-back">
+          {TREE_CLUSTERS.filter((c) => c.depth === 'back').map((c) => (
+            <TreeCluster key={c.id} cluster={c} />
+          ))}
+        </g>
+
+        {/* masas principales */}
+        <g className="tree-masses">
+          {TREE_MASSES.map((m) => (
+            <path key={m.key} d={m.d} fill="url(#tree-mass-fill)" />
+          ))}
+        </g>
+
+        {/* sombras internas (abajo-derecha) y pliegues entre masas */}
+        <g className="tree-shading">
+          {TREE_MASSES.map((m) => (
+            <g key={`shade-${m.key}`} clipPath={`url(#tree-clip-${m.key})`}>
+              <ellipse
+                cx={m.cx + m.rx * 0.3}
+                cy={m.cy + m.ry * 0.38}
+                rx={m.rx * 0.86}
+                ry={m.ry * 0.8}
+                fill="url(#tree-inner-shade)"
+              />
+            </g>
+          ))}
+          <g fill="none" stroke="var(--tree-leaf-dark)" strokeOpacity="0.22" strokeLinecap="round">
+            <path d="M138 168C150 200 150 232 138 260" strokeWidth="10" />
+            <path d="M282 176C272 206 274 236 286 258" strokeWidth="10" />
+            <path d="M176 108C186 138 190 166 186 190" strokeWidth="8" />
+          </g>
+        </g>
+
+        {/* plano medio */}
+        <g className="tree-cluster-group tree-cluster-mid">
+          {TREE_CLUSTERS.filter((c) => c.depth === 'mid').map((c) => (
+            <TreeCluster key={c.id} cluster={c} />
+          ))}
+        </g>
+
+        {/* plano delantero: lo más claro, hacia la luz */}
+        <g className="tree-cluster-group tree-cluster-front">
+          {TREE_CLUSTERS.filter((c) => c.depth === 'front').map((c) => (
+            <TreeCluster key={c.id} cluster={c} />
+          ))}
+        </g>
+
+        {/* brillos translúcidos arriba-izquierda */}
+        <g clipPath="url(#tree-clip-main)">
+          <ellipse cx="166" cy="150" rx="86" ry="70" fill="url(#tree-sheen)" opacity="0.75" />
+        </g>
+        <g clipPath="url(#tree-clip-top)">
+          <ellipse cx="146" cy="88" rx="54" ry="42" fill="url(#tree-sheen)" opacity="0.8" />
+        </g>
+        <g fill="#f6fce9">
+          <circle cx="150" cy="140" r="5" opacity="0.42" />
+          <circle cx="204" cy="108" r="4" opacity="0.36" />
+          <circle cx="118" cy="196" r="3.5" opacity="0.32" />
+          <circle cx="246" cy="150" r="3" opacity="0.3" />
+          <circle cx="176" cy="236" r="3" opacity="0.28" />
+        </g>
+
+        {/* hojas sueltas a punto de caer */}
+        <g className="tree-loose-leaves">
+          {TREE_LOOSE_LEAVES.map((leaf) => (
+            <use
+              key={`loose-${leaf.x}-${leaf.y}`}
+              href="#tree-leaf"
+              width="24"
+              height="34"
+              fill={leaf.fill}
+              transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.rot}) scale(${leaf.scale}) translate(-12 -17)`}
+            />
+          ))}
+        </g>
+      </g>
+
+      {/* ==================== pasto delantero (tapa la base) ================ */}
+      <g className="tree-base-grass">
+        {TREE_BASE_TUFTS.map((t) => (
+          <path
+            key={t.id}
+            d={TREE_TUFT_D}
+            fill={t.fill}
+            transform={`translate(${t.x.toFixed(1)} ${t.y.toFixed(1)}) scale(${(t.scale * t.flip).toFixed(2)} ${t.scale.toFixed(2)}) rotate(${t.rot.toFixed(0)})`}
+          />
+        ))}
+        {/* dos florecitas entre las matas */}
+        <g>
+          <circle cx="150" cy="470" r="3.4" fill="#fff" opacity="0.9" />
+          <circle cx="150" cy="470" r="1.5" fill="#f7d98a" />
+          <circle cx="268" cy="477" r="3" fill="#fff" opacity="0.85" />
+          <circle cx="268" cy="477" r="1.4" fill="#f7d98a" />
+        </g>
       </g>
     </svg>
   );
@@ -1661,6 +2194,17 @@ function RegalateTab({ activities }) {
         </div>
 
         <div className="tree-scene">
+          {/* Cielo animado: solo nubes y rayos de luz, detrás del árbol.
+              No modifica el dibujo del árbol ni la franja de pasto. */}
+          <div className="tree-sky" aria-hidden="true">
+            <span className="tree-sky__ray tree-sky__ray--a" />
+            <span className="tree-sky__ray tree-sky__ray--b" />
+            <span className="tree-sky__ray tree-sky__ray--c" />
+            <span className="tree-sky__cloud tree-sky__cloud--a" />
+            <span className="tree-sky__cloud tree-sky__cloud--b" />
+            <span className="tree-sky__cloud tree-sky__cloud--c" />
+          </div>
+
           <div className="tree-holder">
             <TreeSvg />
           </div>
@@ -1682,9 +2226,12 @@ function RegalateTab({ activities }) {
           {/* Las hojas nacen dentro de la copa y se desprenden desde ahí */}
           <div className="leaves">
             {leaves.map((a, i) => {
-              const top = 58 + ((i * 19) % 122); // dentro de la copa
-              const left = 14 + ((i * 23) % 73);
-              const duration = 8 + ((i * 7) % 6);
+              // nacen dentro de la copa y bajan hasta posarse en la franja verde
+              const top = 96 + ((i * 29) % 150);
+              const left = 20 + ((i * 23) % 60);
+              const landing = 470 + ((i * 11) % 36);
+              const fall = landing - top;
+              const duration = 11 + ((i * 7) % 6);
               const delay = -((i * 11) % 16);
               const sway = ((i % 9) - 4) * 17;
               const color = LEAF_COLORS[i % LEAF_COLORS.length];
@@ -1702,6 +2249,7 @@ function RegalateTab({ activities }) {
                     animationDuration: `${duration}s`,
                     animationDelay: `${delay}s`,
                     '--sway': `${sway}px`,
+                    '--fall': `${fall}px`,
                     '--leaf-color': color
                   }}
                 >
@@ -1913,6 +2461,9 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {/* Fondo animado común a todo el sitio (decorativo, sin interacción) */}
+      <AnimatedBackground variant={BACKGROUND_VARIANT[activeTab] || 'inicio'} />
+
       <a
         href="#contenido"
         style={{

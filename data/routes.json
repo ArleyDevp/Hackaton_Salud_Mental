@@ -260,6 +260,92 @@
       "message": "En Villavicencio hay centros y líneas a las que puedes acudir. Te mostramos direcciones y horarios."
     }
   ],
+  "talleres": [
+    {
+      "id": "respirar-juntos",
+      "actividad": "Respirar juntos",
+      "tipo": "presencial",
+      "fecha": "Sábado 7 de noviembre",
+      "horario": "9:00 a. m. – 10:30 a. m.",
+      "duracion": "90 minutos",
+      "lugar": "Salón comunitario El Mirador, barrio La Esperanza",
+      "organiza": "Colectivo Raíz Común",
+      "modalidad": "Presencial · entrada libre, sin inscripción",
+      "publico": "Personas adultas que quieran aprender pausas de respiración"
+    },
+    {
+      "id": "escribir-para-soltar",
+      "actividad": "Escribir para soltar",
+      "tipo": "presencial",
+      "fecha": "Miércoles 11 de noviembre",
+      "horario": "6:00 p. m. – 7:30 p. m.",
+      "duracion": "90 minutos",
+      "lugar": "Biblioteca del barrio La Unión, sala 3",
+      "organiza": "Taller La Palabra Abierta",
+      "modalidad": "Presencial · cupo limitado, inscripción por correo",
+      "publico": "Personas que prefieran expresarse por escrito"
+    },
+    {
+      "id": "caminata-en-grupo",
+      "actividad": "Caminata en grupo",
+      "tipo": "presencial",
+      "fecha": "Domingo 15 de noviembre",
+      "horario": "7:00 a. m. – 8:15 a. m.",
+      "duracion": "75 minutos",
+      "lugar": "Punto de encuentro: entrada del parque Los Fundadores",
+      "organiza": "Red Tejido Verde",
+      "modalidad": "Presencial · sin costo, llegada libre",
+      "publico": "Familias y personas que quieran moverse acompañadas"
+    },
+    {
+      "id": "mujeres-que-se-escuchan",
+      "actividad": "Mujeres que se escuchan",
+      "tipo": "presencial",
+      "fecha": "Jueves 19 de noviembre",
+      "horario": "3:00 p. m. – 5:00 p. m.",
+      "duracion": "2 horas",
+      "lugar": "Casa del Encuentro, salón principal",
+      "organiza": "Colectivo Flor de Agua",
+      "modalidad": "Presencial · grupo cerrado, inscripción previa",
+      "publico": "Mujeres mayores de 18 años"
+    },
+    {
+      "id": "cafe-y-conversacion",
+      "actividad": "Café y conversación",
+      "tipo": "presencial",
+      "fecha": "Viernes 27 de noviembre",
+      "horario": "5:30 p. m. – 7:00 p. m.",
+      "duracion": "90 minutos",
+      "lugar": "Centro juvenil La Curva, segundo piso",
+      "organiza": "Colectivo Punto Azul",
+      "modalidad": "Presencial · entrada libre",
+      "publico": "Jóvenes entre 14 y 24 años"
+    },
+    {
+      "id": "barro-y-silencio",
+      "actividad": "Barro y silencio",
+      "tipo": "presencial",
+      "fecha": "Sábado 12 de diciembre",
+      "horario": "2:00 p. m. – 4:00 p. m.",
+      "duracion": "2 horas",
+      "lugar": "Taller de oficios El Faro",
+      "organiza": "Colectivo Manos de Barro",
+      "modalidad": "Presencial · materiales incluidos, cupo limitado",
+      "publico": "Personas adultas, sin experiencia previa"
+    },
+    {
+      "id": "acompanar-sin-apuro",
+      "actividad": "Acompañar sin apuro",
+      "tipo": "virtual",
+      "fecha": "Sábado 5 de diciembre",
+      "horario": "10:00 a. m. – 11:30 a. m.",
+      "duracion": "90 minutos",
+      "lugar": "En línea (el enlace se comparte al inscribirse)",
+      "organiza": "Nodo de Cuidados Cercanos",
+      "modalidad": "Virtual · cupo limitado, inscripción previa",
+      "publico": "Personas que cuidan a alguien en casa"
+    }
+  ],
   "resources": [
     {
       "kicker": "Escritura",

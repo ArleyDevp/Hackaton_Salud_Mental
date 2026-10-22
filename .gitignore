@@ -3,3 +3,6 @@ client/dist/
 client/node_modules/
 .DS_Store
 *.log
+
+# Buzón local de soporte: son reportes de usuarios, no van al repositorio.
+data/support/

@@ -44,7 +44,7 @@ ruta-clara-meta/
 | Pestaña | Contenido |
 |---|---|
 | **Inicio** | “Quiero orientarme”, la entrada “¿Qué necesitas en este momento?”, recursos de autocuidado, la tarjeta “Dar el primer paso también es avanzar” y el botón **Zona de paz** justo debajo de la frase “Haz una pausa”. |
-| **Líneas de ayuda** | Canales verificados para Villavicencio, con botón de llamar y fuente. |
+| **Líneas de ayuda** | Canales verificados para Villavicencio, con botón de llamar y fuente. Filtro **“En Villavicencio”**: usa el campo booleano `enVillavicencio` de los datos (no el texto de `scope`), por lo que devuelve las 3 líneas regionales y deja fuera la nacional 123. |
 | **Al viento** | **Cuéntaselo al viento**: se escribe lo que pesa y, al tocar “Que se lo lleve el viento”, el texto se deshace en pétalos y hojas que el viento arrastra por la pantalla y se transforma en una flor, una mariposa o una luz. Termina con “El viento ya se lo llevó. Gracias por contarlo.” y la pregunta “¿Cómo te sientes ahora?”. **No se pide ni se guarda nada**: lo escrito solo existe mientras se escribe. |
 | **Centros presenciales** | Mapa fijo de OpenStreetMap + centros con dirección, teléfono, horario y botón de llamar. |
 | **Zona de paz** | Solo lo esencial: respiración guiada, frase que rota sola, **música de relajación**, Anclaje 5-4-3-2-1 y “Regálate ese momento”. |
@@ -111,6 +111,11 @@ npm run dev          # frontend en :5173 (proxied a /api -> :3000)
 | Ruta | Descripción |
 |---|---|
 | `GET /api/routes` | Todo el contenido (líneas, centros, frases, momentos). |
+
+Cada línea de `lines` incluye `enVillavicencio: true|false`, que es lo que usa el
+filtro “En Villavicencio”. El mismo campo existe en `client/src/crisis.js`, así que
+el filtro da el mismo resultado con el servidor caído (la lista local de crisis se
+usa a propósito para que la ayuda nunca dependa de la red).
 | `GET /api/health` | Estado del servidor. |
 
 **Música de la Zona de paz.** Es **automática**: al entrar a la pestaña arranca una secuencia de

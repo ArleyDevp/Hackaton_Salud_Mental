@@ -427,12 +427,32 @@ section {
 }
 
 /* --------------------------------------------------------------------------
-   Secciones generales
+   Secciones generales con fondo de puntos y halo de calma
    -------------------------------------------------------------------------- */
-.orientation-section,
-.resources-section {
-  background: var(--white);
+.orientation-section {
+  position: relative;
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(circle, rgba(23, 49, 58, 0.17) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 8% 88%, rgba(198, 238, 222, 0.82) 0%, rgba(215, 246, 235, 0.38) 42%, transparent 68%);
+  background-size: 32px 32px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+  background-position: center center, center center;
   padding: 105px 0;
+  overflow: hidden;
+}
+
+.resources-section {
+  position: relative;
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(circle, rgba(23, 49, 58, 0.17) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 92% 75%, rgba(222, 218, 240, 0.65) 0%, rgba(235, 232, 248, 0.3) 42%, transparent 68%);
+  background-size: 32px 32px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+  background-position: center center, center center;
+  padding: 105px 0 115px;
+  overflow: hidden;
 }
 
 .section-heading {
@@ -445,12 +465,24 @@ section {
 }
 
 .section-number {
-  color: var(--blue-deep);
-  letter-spacing: 0.2em;
-  margin-bottom: 19px;
-  font-size: 10px;
+  color: #1b7352;
+  background: #eaf6f0;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 11px;
   font-weight: 800;
-  display: block;
+  letter-spacing: 0.12em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.closing-card .section-number {
+  color: var(--blue);
+  background: rgba(191, 229, 237, 0.15);
+  border: 1px solid rgba(191, 229, 237, 0.25);
 }
 
 .section-heading h2,
@@ -470,34 +502,44 @@ section {
 }
 
 /* --------------------------------------------------------------------------
-   ¿Cómo estás hoy? (moods)
+   ¿Cómo estás hoy? (moods / necesidades)
    -------------------------------------------------------------------------- */
 .need-grid {
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-  max-width: 1000px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  max-width: 900px;
   margin: auto;
   display: grid;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 720px) {
+  .need-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .need-card {
-  border: 1px solid var(--line);
+  border: 1px solid rgba(23, 49, 58, 0.08);
   background: var(--white);
-  border-radius: var(--radius-md);
+  border-radius: 26px;
   text-align: left;
   cursor: pointer;
   align-items: center;
-  gap: 16px;
-  min-height: 120px;
-  padding: 22px;
-  transition: all 0.2s;
+  gap: 18px;
+  min-height: 110px;
+  padding: 22px 26px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   display: flex;
   position: relative;
+  box-shadow: 0 8px 24px -5px rgba(23, 49, 58, 0.05);
 }
 
 .need-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px #1c4b5014;
+  transform: translateY(-3px);
+  border-color: rgba(40, 119, 135, 0.35);
+  box-shadow: 0 16px 36px -8px rgba(23, 49, 58, 0.1);
 }
 
 .need-card.selected {
@@ -513,18 +555,20 @@ section {
 }
 
 .need-icon {
-  background: var(--pearl);
-  width: 45px;
-  height: 45px;
-  color: var(--blue-deep);
-  border-radius: 15px;
-  flex: 0 0 45px;
+  background: #e7f2ed;
+  width: 48px;
+  height: 48px;
+  color: var(--ink);
+  border-radius: 16px;
+  flex: 0 0 48px;
   place-items: center;
   display: grid;
+  transition: background 0.2s, color 0.2s;
 }
 
 .selected .need-icon {
   background: var(--blue);
+  color: var(--ink);
 }
 
 .need-card.crisis.selected .need-icon {
@@ -533,29 +577,34 @@ section {
 }
 
 .need-card > span:nth-child(2) {
-  gap: 6px;
+  gap: 5px;
   display: grid;
 }
 
 .need-card strong {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
 }
 
 .need-card small {
   color: var(--ink-soft);
-  font-size: 10px;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .choice-mark {
-  width: 25px;
-  height: 25px;
-  color: var(--blue-deep);
-  border: 1px solid var(--line);
+  width: 32px;
+  height: 32px;
+  color: #4b666d;
+  background: #eef4f3;
+  border: 1px solid rgba(23, 49, 58, 0.04);
   border-radius: 50%;
-  flex: 0 0 25px;
+  flex: 0 0 32px;
   place-items: center;
   margin-left: auto;
   display: grid;
+  transition: all 0.2s;
 }
 
 .selected .choice-mark {

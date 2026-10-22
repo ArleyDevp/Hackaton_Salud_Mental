@@ -12,6 +12,7 @@
       "name": "Yo Te Escucho — Villavicencio",
       "kind": "Línea local de escucha y orientación",
       "scope": "Villavicencio",
+      "enVillavicencio": true,
       "badge": "local",
       "hours": "24 horas, 7 días",
       "phones": [
@@ -27,6 +28,7 @@
         "url": "https://wa.me/573163907010"
       },
       "source": "Alcaldía de Villavicencio · ESE Municipal",
+      "consulta": "octubre de 2026",
       "verified": true
     },
     {
@@ -34,6 +36,7 @@
       "name": "Línea Amiga de Salud Mental — Meta",
       "kind": "Línea departamental de apoyo psicológico",
       "scope": "Departamento del Meta",
+      "enVillavicencio": true,
       "badge": "local",
       "hours": "24 horas, 7 días",
       "phones": [
@@ -50,6 +53,7 @@
       ],
       "whatsapp": null,
       "source": "Gobernación del Meta · E.S.E. “Solución Salud”",
+      "consulta": "octubre de 2026",
       "verified": true
     },
     {
@@ -57,6 +61,7 @@
       "name": "Línea Violeta — Villavicencio",
       "kind": "Orientación en crisis por violencia de género",
       "scope": "Villavicencio",
+      "enVillavicencio": true,
       "badge": "local",
       "hours": "24 horas, 7 días",
       "phones": [
@@ -72,6 +77,7 @@
         "url": "https://wa.me/573167426938"
       },
       "source": "Secretaría de la Mujer de Villavicencio",
+      "consulta": "octubre de 2026",
       "verified": true
     },
     {
@@ -79,6 +85,7 @@
       "name": "Emergencias — Peligro inmediato",
       "kind": "Activa ambulancia o Policía Metropolitana",
       "scope": "Nacional",
+      "enVillavicencio": false,
       "badge": "urgent",
       "hours": "24 horas, 7 días",
       "phones": [
@@ -90,6 +97,7 @@
       ],
       "whatsapp": null,
       "source": "Línea nacional de emergencias",
+      "consulta": "octubre de 2026",
       "verified": true
     }
   ],
@@ -186,43 +194,44 @@
   ],
   "centers": [
     {
-      "id": "secretaria-salud",
-      "name": "Secretaría de Salud de Villavicencio",
+      "id": "secretaria-salud-meta",
+      "name": "Secretaría de Salud del Meta",
       "address": "Calle 37 # 41-80, Barzal, Villavicencio",
-      "phone": "+57 661 0555 · 662 0157 · 662 0140",
-      "tel": "tel:+576610555",
+      "phone": "01 8000 187 408 · 608 661 0555",
+      "tel": "tel:018000187408",
       "hours": "Lunes a viernes, 8:00 a.m. a 12:00 m. y 2:00 a 6:00 p.m.",
       "verified": true,
-      "note": "Conmutador de la Secretaría. Pide orientación en salud mental.",
-      "source": "Gobernación del Meta · Secretaría de Salud",
+      "note": "Dirección territorial de salud con sede en Villavicencio. Pide orientación en salud mental por la línea gratuita o en el conmutador.",
+      "source": "Gobernación del Meta · Secretaría de Salud del Meta",
+      "consulta": "octubre de 2026",
       "lat": 4.1358,
       "lon": -73.6353
     },
     {
       "id": "hospital-departamental",
-      "name": "Hospital Departamental de Villavicencio",
-      "address": "Sector Barzal, Villavicencio",
-      "phone": "Urgencias: confirma con la entidad",
-      "tel": null,
-      "hours": "Urgencias 24 horas",
-      "verified": false,
-      "note": "Para urgencias. Confirma el número directo antes de desplazarte.",
-      "source": "Prototipo — pendiente de confirmar",
-      "lat": 4.142,
-      "lon": -73.6266
+      "name": "Hospital Departamental de Villavicencio E.S.E.",
+      "address": "Calle 37A # 28-53, Barzal Alto, Villavicencio",
+      "phone": "01 8000 930 606 · +57 608 681 7901",
+      "tel": "tel:018000930606",
+      "hours": "Urgencias 24 horas · Administrativo: lunes a viernes, 7:30 a.m. a 12:00 m. y 2:00 a 6:00 p.m.",
+      "verified": true,
+      "note": "Urgencias y atención hospitalaria las 24 horas. Pide orientación en salud mental al llegar o por el conmutador.",
+      "source": "Hospital Departamental de Villavicencio E.S.E. · Directorio institucional",
+      "consulta": "octubre de 2026"
     },
     {
-      "id": "eape-primaria",
-      "name": "Centro de salud de atención primaria",
-      "address": "Zona centro, Villavicencio",
-      "phone": "Por confirmar",
-      "tel": null,
-      "hours": "Por confirmar",
-      "verified": false,
-      "note": "Ubicación aproximada. Pendiente de confirmar dirección, horario y contacto.",
-      "source": "Prototipo — pendiente de confirmar",
-      "lat": 4.1452,
-      "lon": -73.628
+      "id": "centro-salud-recreo",
+      "name": "Centro de Salud El Recreo",
+      "address": "Calle 31 con Carrera 11, barrio Recreo, Villavicencio",
+      "phone": "608 671 8235 · 321 489 3149",
+      "tel": "tel:6086718235",
+      "hours": "24 horas",
+      "verified": true,
+      "note": "Centro de atención primaria de la ESE municipal. Urgencias de nivel I, consulta general y enfermería.",
+      "source": "E.S.E. del Municipio de Villavicencio · Directorio y SIAU",
+      "consulta": "octubre de 2026",
+      "lat": 4.1432808,
+      "lon": -73.6110418
     }
   ],
   "phrases": [
@@ -282,9 +291,13 @@
   "closing": {
     "kicker": "Estamos para orientarte",
     "title": "Dar el primer paso también es avanzar.",
-    "text": "Si necesitas hablar con alguien ahora, la Línea 106 está disponible las 24 horas.",
-    "buttonLabel": "Llamar gratis al 106",
-    "buttonHref": "tel:106"
+    "text": "Si necesitas hablar con alguien ahora, la Línea Yo Te Escucho atiende de forma gratuita y las 24 horas en Villavicencio.",
+    "buttonLabel": "Llamar gratis al 01 8000 931 089",
+    "buttonHref": "tel:018000931089",
+    "source": "Alcaldía de Villavicencio · ESE Municipal",
+    "consulta": "octubre de 2026",
+    "secondaryLabel": "Ver todas las líneas de ayuda",
+    "secondaryTab": "lineas"
   },
   "habits": [
     {
@@ -357,7 +370,19 @@
     },
     {
       "label": "Gobernación del Meta — Secretaría de Salud",
-      "url": "https://www.saludmeta.gov.co/directorio-institucional/secretaria-de-salud-de-villavicencio"
+      "url": "https://www.saludmeta.gov.co/directorio-institucional/oficina-secretaria-de-salud-del-meta"
+    },
+    {
+      "label": "Hospital Departamental de Villavicencio E.S.E.",
+      "url": "https://www.hdv.gov.co/paginas/directorio-institucional"
+    },
+    {
+      "label": "E.S.E. del Municipio de Villavicencio",
+      "url": "https://www.ese-villavicencio-meta.gov.co/"
+    },
+    {
+      "label": "Registro único de habilitación (datos.gov.co)",
+      "url": "https://www.datos.gov.co/"
     }
   ],
   "regalate": [

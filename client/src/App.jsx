@@ -179,7 +179,15 @@ const FALLBACK_PHRASES = [
   'Este momento también va a pasar.'
 ];
 
-function osmUrl(lat, lon) {
+// Centro de Villavicencio: se usa como vista general cuando una ficha no tiene
+// coordenadas verificadas (mejor un mapa sin punto que un punto inventado).
+const VILLAVICENCIO_CENTRO = { lat: 4.142, lon: -73.6266 };
+
+function tieneCoordenadas(c) {
+  return Boolean(c) && Number.isFinite(c.lat) && Number.isFinite(c.lon);
+}
+
+function osmUrl(lat, lon, conMarcador = true) {
   const d = 0.07;
   const bbox = [
     (lon - d).toFixed(4),
@@ -187,9 +195,10 @@ function osmUrl(lat, lon) {
     (lon + d).toFixed(4),
     (lat + d).toFixed(4)
   ].join('%2C');
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat.toFixed(
-    4
-  )}%2C${lon.toFixed(4)}`;
+  const marcador = conMarcador
+    ? `&marker=${lat.toFixed(4)}%2C${lon.toFixed(4)}`
+    : '';
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik${marcador}`;
 }
 
 // Frase que rota de forma automática con efecto de desvanecer.
@@ -955,6 +964,24 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
                 <a className="light-button" href={closing.buttonHref}>
                   <Icon name="phone" size={17} /> {closing.buttonLabel}
                 </a>
+                {closing.secondaryLabel && (
+                  <button
+                    className="closing-link"
+                    type="button"
+                    onClick={() => setTab(closing.secondaryTab || 'lineas')}
+                  >
+                    {closing.secondaryLabel}
+                  </button>
+                )}
+                {closing.source && (
+                  <p className="closing-source">
+                    <Icon name="shield" size={14} />
+                    <span>
+                      Fuente: {closing.source}
+                      {closing.consulta && <> · Consulta: {closing.consulta}</>}
+                    </span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -977,7 +1004,7 @@ const FILTROS_LINEAS = [
   { id: 'villavicencio', label: 'En Villavicencio' }
 ];
 
-function LinesTab({ lines }) {
+export function LinesTab({ lines }) {
   const [filter, setFilter] = useState('todas');
   const all = lines || CRISIS_LINES;
   const filtered =
@@ -1187,7 +1214,7 @@ function WindGift({ kind }) {
   );
 }
 
-function WindTab({ setTab }) {
+export function WindTab({ setTab }) {
   const [text, setText] = useState('');
   const [phase, setPhase] = useState('write'); // 'write' | 'blowing' | 'revealed'
   const [bits, setBits] = useState([]);
@@ -1387,7 +1414,7 @@ function WindTab({ setTab }) {
 /* ==========================================================================
    Centros presenciales
    ========================================================================== */
-function CentersTab({ centers }) {
+export function CentersTab({ centers }) {
   const list = centers || [];
   const [active, setActive] = useState(list[0]?.id || null);
   const current = list.find((c) => c.id === active) || list[0];
@@ -1445,13 +1472,21 @@ function CentersTab({ centers }) {
               <iframe
                 key={current.id}
                 title="Mapa de Villavicencio"
-                src={osmUrl(current.lat, current.lon)}
+                src={
+                  tieneCoordenadas(current)
+                    ? osmUrl(current.lat, current.lon)
+                    : osmUrl(VILLAVICENCIO_CENTRO.lat, VILLAVICENCIO_CENTRO.lon, false)
+                }
                 loading="lazy"
               />
             )}
             <div className="map-caption">
               {current
-                ? `${current.name} · ${current.address}. Ubicación aproximada para el prototipo; confirma con la entidad.`
+                ? `${current.name} · ${current.address}. ${
+                    tieneCoordenadas(current)
+                      ? 'Ubicación aproximada para el prototipo; confirma con la entidad.'
+                      : 'Ficha sin coordenadas verificadas: el mapa no señala un punto exacto. Confirma la dirección con la entidad.'
+                  }`
                 : 'Mapa general de Villavicencio.'}
             </div>
           </div>

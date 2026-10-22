@@ -1,0 +1,97 @@
+LICENCIA DEL PROYECTO — RUTA CLARA META
+========================================
+
+Copyright (c) 2026 — Ruta Clara Meta. Todos los derechos reservados.
+
+
+1. OBJETO
+---------
+
+Este documento regula el uso del código fuente, los estilos, las ilustraciones y
+los textos originales que conforman el prototipo "Ruta Clara Meta" (en adelante,
+"el Proyecto"), disponible en este repositorio.
+
+El Proyecto es un prototipo de nivel TRL 4 desarrollado para la Hackatón de
+Salud Mental de Villavicencio. No se publica bajo una licencia abierta.
+
+La declaración correspondiente se encuentra también en los manifiestos del
+proyecto:
+
+    package.json         ->  "license": "UNLICENSED",  "private": true
+    client/package.json  ->  "license": "UNLICENSED",  "private": true
+
+
+2. CONCESIÓN LIMITADA PARA EVALUACIÓN
+-------------------------------------
+
+Sin perjuicio de lo anterior, se concede de forma expresa y gratuita a las
+personas evaluadoras del hackatón, al jurado y a las instituciones organizadoras
+un permiso no exclusivo, intransferible y revocable para:
+
+  a) ejecutar el Proyecto en local o en un entorno de demostración;
+  b) revisar su código fuente con fines de evaluación técnica;
+  c) reproducir capturas o registros de su funcionamiento en los documentos de
+     evaluación del certamen.
+
+Este permiso se limita a la evaluación del Proyecto. No autoriza a publicarlo,
+redistribuirlo, modificarlo para su difusión ni incorporarlo a un producto o
+servicio de terceros.
+
+
+3. RESTRICCIONES
+----------------
+
+Sin la autorización escrita de los autores no está permitido:
+
+  a) vender, sublicenciar o comercializar el Proyecto;
+  b) redistribuir el Proyecto, total o parcialmente, fuera del ámbito de la
+     evaluación descrito en la sección 2;
+  c) eliminar o alterar este aviso de derechos de autor;
+  d) presentar el Proyecto, total o en parte, como obra propia de un tercero;
+  e) utilizar el nombre, las marcas o la identidad gráfica del Proyecto para
+     promocionar productos o servicios ajenos.
+
+
+4. COMPONENTES DE TERCEROS
+--------------------------
+
+Este apartado cubre únicamente la obra original del equipo.
+
+Las dependencias npm, la tipografía Manrope, los datos de OpenStreetMap y demás
+componentes de terceros **no** se licencian por este documento: conservan su
+licencia original. Su inventario completo, con nombre, versión y licencia, está
+en TERCEROS_Y_LICENCIAS.md y en los archivos package-lock.json.
+
+
+5. CONTENIDO DE SALUD Y LISTAS DE LÍNEAS DE AYUDA
+-------------------------------------------------
+
+Los teléfonos, nombres institucionales y horarios que aparecen en la interfaz no
+son obra del equipo. Proceden de fuentes oficiales, se muestran con su fuente y
+fecha de consulta, y pueden cambiar sin aviso. Antes de cualquier uso que no sea
+la evaluación del hackatón deben reverificarse siguiendo el PLAN_DE_OPERACION.md.
+
+El Proyecto no es un servicio de atención sanitaria. Su aviso permanente es:
+
+    "Este espacio acompaña, pero no reemplaza la atención profesional."
+
+
+6. EXENCIÓN DE RESPONSABILIDAD
+------------------------------
+
+El Proyecto se entrega "tal cual", sin garantía de ningún tipo, expresa o
+implícita, incluidas las garantías de comerciabilidad, idoneidad para un fin
+determinado o no infracción de derechos de terceros.
+
+En ningún caso los autores serán responsables por daños directos, indirectos,
+incidentales, especiales o consecuentes derivados del uso o la imposibilidad de
+uso del Proyecto, incluidos los errores en los números de contacto publicados o
+los cambios en la disponibilidad de los servicios referenciados.
+
+
+7. CONTACTO PARA DUDAS O REPORTES
+---------------------------------
+
+Consultas sobre esta licencia, avisos de enlaces o teléfonos inactivos, y
+solicitudes de autorización: canal de reporte descrito en el apartado 6 del
+PLAN_DE_OPERACION.md.

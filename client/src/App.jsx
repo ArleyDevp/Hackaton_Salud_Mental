@@ -390,7 +390,7 @@ function useCalmMusic() {
         ctx
           .resume()
           .then(() => setBlocked(false))
-          .catch(() => {});
+          .catch(() => { });
       }
     };
     document.addEventListener('pointerdown', resume);
@@ -758,10 +758,19 @@ function HomeTab({ data, phrases, setTab, openCrisis, scrollTo }) {
 /* ==========================================================================
    Líneas de ayuda
    ========================================================================== */
+// El filtro no depende de cómo esté redactado el campo "scope": usa un
+// indicador explícito en los datos (routes.json y crisis.js). Así no se vuelve
+// a romper si alguien cambia la etiqueta de un texto.
+const FILTROS_LINEAS = [
+  { id: 'todas', label: 'Todas' },
+  { id: 'villavicencio', label: 'En Villavicencio' }
+];
+
 function LinesTab({ lines }) {
-  const [filter, setFilter] = useState('Todas');
+  const [filter, setFilter] = useState('todas');
   const all = lines || CRISIS_LINES;
-  const filtered = filter === 'Todas' ? all : all.filter((l) => l.scope === 'Villavicencio');
+  const filtered =
+    filter === 'todas' ? all : all.filter((l) => l.enVillavicencio === true);
 
   return (
     <section className="tab-section routes-section">
